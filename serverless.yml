@@ -86,8 +86,10 @@ functions:
             - - "arn:aws:s3:::"
               - Ref: "OriginBucket"
               - "/*"
-#    events:
-#      - schedule: rate(10 minutes)
+    events:
+      - schedule:
+          rate: rate(1 minute)
+          enabled: false
 
   TransformTrafficToJsonData:
     handler: handler.handle
