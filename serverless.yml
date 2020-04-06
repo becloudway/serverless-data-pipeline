@@ -20,14 +20,19 @@ service: sls-data-pipelines
 # Check out our docs for more details
 # frameworkVersion: "=X.X.X"
 
+package:
+  individually: true
+
 plugins:
   - serverless-iam-roles-per-function
+  - serverless-python-requirements
 
 provider:
   name: aws
   runtime: python3.7
   region: eu-west-1
   profile: cloudway-nick
+
 
 # you can overwrite defaults here
 #  stage: dev
@@ -63,8 +68,9 @@ provider:
 #    - exclude-me-dir/**
 
 functions:
-  RetreiveXMLTrafficData:
-    handler: src/RetreiveXMLTrafficData/handler.handle
+  RetrieveXMLTrafficData:
+    handler: handler.handle
+    module: src/RetrieveXMLTrafficData
     environment:
       TRAFFIC_DATA_URL: "http://miv.opendata.belfla.be/miv/verkeersdata"
     iamRoleStatementsInherit: true
@@ -77,7 +83,8 @@ functions:
             - RawDataBucket
             - Arn
   TransformTrafficToJsonData:
-    handler: src/TransformTrafficToJsonData/handler.handle
+    handler: handler.handle
+    module: src/TransformTrafficDataToJson
     iamRoleStatementsInherit: true
     iamRoleStatements:
       - Effect: "Allow"
