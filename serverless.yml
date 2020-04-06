@@ -63,8 +63,30 @@ provider:
 #    - exclude-me-dir/**
 
 functions:
-  RetreiveAndTransformTrafficData:
-    handler: src/RetreiveAndTransformTrafficData/handler.handle
+  RetreiveXMLTrafficData:
+    handler: src/RetreiveXMLTrafficData/handler.handle
+    environment:
+      TRAFFIC_DATA_URL: "http://miv.opendata.belfla.be/miv/verkeersdata"
+    iamRoleStatementsInherit: true
+    iamRoleStatements:
+      - Effect: "Allow"
+        Action:
+          - s3:PutObject
+        Resource:
+          Fn::GetAtt:
+            - RawDataBucket
+            - Arn
+  TransformTrafficToJsonData:
+    handler: src/TransformTrafficToJsonData/handler.handle
+    iamRoleStatementsInherit: true
+    iamRoleStatements:
+      - Effect: "Allow"
+        Action:
+          - s3:GetObject
+        Resource:
+          Fn::GetAtt:
+            - RawDataBucket
+            - Arn
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
 #    Check the event documentation for details
@@ -86,10 +108,10 @@ functions:
 # you can add CloudFormation resource templates here
 resources:
   Resources:
-    NewResource:
+    RawDataBucket:
       Type: AWS::S3::Bucket
       Properties:
-        BucketName: traffic-data-raw-bucket
+        BucketName: traffic-data-origin-bucket
 #  Outputs:
 #     NewOutput:
 #       Description: "Description for the output"
