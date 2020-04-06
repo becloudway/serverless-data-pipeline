@@ -75,6 +75,7 @@ functions:
       TRAFFIC_DATA_URL: "http://miv.opendata.belfla.be/miv/verkeersdata"
       BUCKET_NAME:
         Ref: OriginBucket
+      S3_XML_PREFIX: "xml/input/"
     iamRoleStatementsInherit: true
     iamRoleStatements:
       - Effect: "Allow"
@@ -94,11 +95,17 @@ functions:
   TransformTrafficToJsonData:
     handler: handler.handle
     module: src/TransformTrafficDataToJson
+    environment:
+      BUCKET_NAME:
+        Ref: OriginBucket
+      S3_XML_PREFIX: "xml/input/"
+      S3_JSON_PREFIX: "json/input/"
     iamRoleStatementsInherit: true
     iamRoleStatements:
       - Effect: "Allow"
         Action:
           - s3:GetObject
+          - s3:PutObject
         Resource:
           Fn::Join:
             - ""
