@@ -73,15 +73,19 @@ functions:
     module: src/RetrieveXMLTrafficData
     environment:
       TRAFFIC_DATA_URL: "http://miv.opendata.belfla.be/miv/verkeersdata"
+      BUCKET_NAME:
+        Ref: OriginBucket
     iamRoleStatementsInherit: true
     iamRoleStatements:
       - Effect: "Allow"
         Action:
           - s3:PutObject
         Resource:
-          Fn::GetAtt:
-            - RawDataBucket
-            - Arn
+          Fn::Join:
+            - ""
+            - - "arn:aws:s3:::"
+              - Ref: "OriginBucket"
+              - "/*"
   TransformTrafficToJsonData:
     handler: handler.handle
     module: src/TransformTrafficDataToJson
@@ -91,9 +95,18 @@ functions:
         Action:
           - s3:GetObject
         Resource:
-          Fn::GetAtt:
-            - RawDataBucket
-            - Arn
+          Fn::Join:
+            - ""
+            - - "arn:aws:s3:::"
+              - Ref: "OriginBucket"
+              - "/*"
+#     events:
+#      - s3:
+#          bucket: Ref OriginBucket
+#          event: s3:ObjectCreated:*
+#          rules:
+#            - prefix: xml/input/
+#            - suffix: .xml
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
 #    Check the event documentation for details
@@ -115,7 +128,7 @@ functions:
 # you can add CloudFormation resource templates here
 resources:
   Resources:
-    RawDataBucket:
+    OriginBucket:
       Type: AWS::S3::Bucket
       Properties:
         BucketName: traffic-data-origin-bucket
