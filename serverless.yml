@@ -86,6 +86,9 @@ functions:
             - - "arn:aws:s3:::"
               - Ref: "OriginBucket"
               - "/*"
+#    events:
+#      - schedule: rate(10 minutes)
+
   TransformTrafficToJsonData:
     handler: handler.handle
     module: src/TransformTrafficDataToJson
@@ -100,13 +103,15 @@ functions:
             - - "arn:aws:s3:::"
               - Ref: "OriginBucket"
               - "/*"
-#     events:
-#      - s3:
-#          bucket: Ref OriginBucket
-#          event: s3:ObjectCreated:*
-#          rules:
-#            - prefix: xml/input/
-#            - suffix: .xml
+    events:
+      - s3:
+          bucket:
+            Ref: OriginBucket
+          event: s3:ObjectCreated:*
+          rules:
+            - prefix: xml/input/
+            - suffix: .xml
+          existing: true
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
 #    Check the event documentation for details
@@ -132,6 +137,14 @@ resources:
       Type: AWS::S3::Bucket
       Properties:
         BucketName: traffic-data-origin-bucket
+#        DependsOn: TransformTrafficToJsonData
+#        NotificationConfiguration:
+#          LambdaConfigurations:
+#            - Event: "s3:ObjectCreated:Put"
+#              Function:
+#                "Fn::GetAtt":
+#                  - TransformTrafficToJsonData
+#                  - Arn
 #  Outputs:
 #     NewOutput:
 #       Description: "Description for the output"
