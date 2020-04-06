@@ -1,0 +1,48 @@
+---
+Resources:
+  FirehoseToS3Role:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: FirehoseToS3Role
+      AssumeRolePolicyDocument:
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+            - firehose.amazonaws.com
+          Action:
+          - sts:AssumeRole
+      Policies:
+      - PolicyName: FirehoseToS3Policy
+        PolicyDocument:
+          Statement:
+            - Effect: Allow
+              Action:
+              - s3:AbortMultipartUpload
+              - s3:GetBucketLocation
+              - s3:GetObject
+              - s3:ListBucket
+              - s3:ListBucketMultipartUploads
+              - s3:PutObject
+              Resource: '*'
+  ServerlessKinesisFirehoseBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    Properties:
+      BucketName: ${env:STAGE}-serverless-kinesis-firehose-bucket
+  ServerlessKinesisFirehose:
+    Type: AWS::KinesisFirehose::DeliveryStream
+    Properties:
+      DeliveryStreamName: ${env:STAGE}-serverless-kinesis-firehose
+      S3DestinationConfiguration:
+        BucketARN:
+          Fn::Join:
+          - ''
+          - - 'arn:aws:s3:::'
+            - Ref: ServerlessKinesisFirehoseBucket
+        BufferingHints:
+          IntervalInSeconds: "60"
+          SizeInMBs: "1"
+        CompressionFormat: "UNCOMPRESSED"
+        Prefix: "raw/"
+        RoleARN: { Fn::GetAtt: [ FirehoseToS3Role, Arn ] }

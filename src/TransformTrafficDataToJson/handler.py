@@ -27,7 +27,6 @@ def handle(event, context):
         "statusCode": 200,
         "body": json.dumps('success!')
     }
-    print('returning response')
     return response
 
 
