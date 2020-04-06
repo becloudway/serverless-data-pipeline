@@ -1,0 +1,107 @@
+{
+  "miv": {
+    "@xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
+    "@xsi:noNamespaceSchemaLocation": "http://miv.opendata.belfla.be/miv-verkeersdata.xsd",
+    "@schemaVersion": "1.0.0",
+    "tijd_publicatie": "2020-04-06T17:52:21.45+01:00",
+    "tijd_laatste_config_wijziging": "2019-12-05T10:26:49+01:00",
+    "meetpunt": [
+      {
+        "@beschrijvende_id": "H222L10",
+        "@unieke_id": "29",
+        "lve_nr": "55",
+        "tijd_waarneming": "2020-04-06T17:51:00+01:00",
+        "tijd_laatst_gewijzigd": "2020-04-06T17:52:20+01:00",
+        "actueel_publicatie": "1",
+        "beschikbaar": "1",
+        "defect": "0",
+        "geldig": "0",
+        "meetdata": [
+          {
+            "@klasse_id": "1",
+            "verkeersintensiteit": "0",
+            "voertuigsnelheid_rekenkundig": "0",
+            "voertuigsnelheid_harmonisch": "252"
+          },
+          {
+            "@klasse_id": "2",
+            "verkeersintensiteit": "0",
+            "voertuigsnelheid_rekenkundig": "0",
+            "voertuigsnelheid_harmonisch": "252"
+          },
+          {
+            "@klasse_id": "3",
+            "verkeersintensiteit": "0",
+            "voertuigsnelheid_rekenkundig": "0",
+            "voertuigsnelheid_harmonisch": "252"
+          },
+          {
+            "@klasse_id": "4",
+            "verkeersintensiteit": "0",
+            "voertuigsnelheid_rekenkundig": "0",
+            "voertuigsnelheid_harmonisch": "252"
+          },
+          {
+            "@klasse_id": "5",
+            "verkeersintensiteit": "0",
+            "voertuigsnelheid_rekenkundig": "0",
+            "voertuigsnelheid_harmonisch": "252"
+          }
+        ],
+        "rekendata": {
+          "bezettingsgraad": "0",
+          "beschikbaarheidsgraad": "100",
+          "onrustigheid": "0"
+        }
+      },
+      {
+        "@beschrijvende_id": "H222L20",
+        "@unieke_id": "30",
+        "lve_nr": "55",
+        "tijd_waarneming": "2020-04-06T17:51:00+01:00",
+        "tijd_laatst_gewijzigd": "2020-04-06T17:52:20+01:00",
+        "actueel_publicatie": "1",
+        "beschikbaar": "1",
+        "defect": "0",
+        "geldig": "0",
+        "meetdata": [
+          {
+            "@klasse_id": "1",
+            "verkeersintensiteit": "0",
+            "voertuigsnelheid_rekenkundig": "0",
+            "voertuigsnelheid_harmonisch": "252"
+          },
+          {
+            "@klasse_id": "2",
+            "verkeersintensiteit": "0",
+            "voertuigsnelheid_rekenkundig": "0",
+            "voertuigsnelheid_harmonisch": "252"
+          },
+          {
+            "@klasse_id": "3",
+            "verkeersintensiteit": "0",
+            "voertuigsnelheid_rekenkundig": "0",
+            "voertuigsnelheid_harmonisch": "252"
+          },
+          {
+            "@klasse_id": "4",
+            "verkeersintensiteit": "0",
+            "voertuigsnelheid_rekenkundig": "0",
+            "voertuigsnelheid_harmonisch": "252"
+          },
+          {
+            "@klasse_id": "5",
+            "verkeersintensiteit": "0",
+            "voertuigsnelheid_rekenkundig": "0",
+            "voertuigsnelheid_harmonisch": "252"
+          }
+        ],
+        "rekendata": {
+          "bezettingsgraad": "0",
+          "beschikbaarheidsgraad": "100",
+          "onrustigheid": "0"
+        }
+      }
+    ]
+  }
+}

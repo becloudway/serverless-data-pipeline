@@ -26,6 +26,13 @@ package:
 plugins:
   - serverless-iam-roles-per-function
   - serverless-python-requirements
+  - serverless-pseudo-parameters
+
+
+custom:
+  firehoseS3Prefix: 'destination/'
+  firehoseCompressionFormat: UNCOMPRESSED
+
 
 provider:
   name: aws
@@ -141,20 +148,25 @@ functions:
 
 # you can add CloudFormation resource templates here
 resources:
-  Resources:
-    OriginBucket:
-      Type: AWS::S3::Bucket
-      Properties:
-        BucketName: traffic-data-origin-bucket
-#        DependsOn: TransformTrafficToJsonData
-#        NotificationConfiguration:
-#          LambdaConfigurations:
-#            - Event: "s3:ObjectCreated:Put"
-#              Function:
-#                "Fn::GetAtt":
-#                  - TransformTrafficToJsonData
-#                  - Arn
-#  Outputs:
-#     NewOutput:
-#       Description: "Description for the output"
-#       Value: "Some output value"
+  - ${file(resources/firehose.yml)}
+  - Resources:
+      OriginBucket:
+        Type: AWS::S3::Bucket
+        Properties:
+          BucketName: traffic-data-origin-bucket
+    #        DependsOn: TransformTrafficToJsonData
+    #        NotificationConfiguration:
+    #          LambdaConfigurations:
+    #            - Event: "s3:ObjectCreated:Put"
+    #              Function:
+    #                "Fn::GetAtt":
+    #                  - TransformTrafficToJsonData
+    #                  - Arn
+      DeliveryBucket:
+        Type: AWS::S3::Bucket
+        Properties:
+          BucketName: traffic-data-destination-bucket
+  #  Outputs:
+  #     NewOutput:
+  #       Description: "Description for the output"
+  #       Value: "Some output value"
