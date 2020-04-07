@@ -45,3 +45,4 @@ def put_events(data):
             'Data': data
         }
     )
+    print("Response: {}".format(response))

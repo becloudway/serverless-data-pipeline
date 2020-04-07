@@ -7,6 +7,7 @@ Resources:
       DeliveryStreamType: DirectPut
       ExtendedS3DestinationConfiguration:
         Prefix: ${self:custom.firehoseS3Prefix}
+        ErrorOutputPrefix: error/
         BucketARN:
           'Fn::GetAtt': [DeliveryBucket, Arn]
         BufferingHints:
@@ -15,6 +16,10 @@ Resources:
         CompressionFormat: ${self:custom.firehoseCompressionFormat}
         RoleARN:
           'Fn::GetAtt': [DeliveryStreamRole, Arn]
+        CloudWatchLoggingOptions:
+          Enabled: true
+          LogGroupName: "deliveryStream"
+          LogStreamName: "s3Delivery"
 #        ProcessingConfiguration:
 #          Enabled: true
 #          Processors:
@@ -51,37 +56,8 @@ Resources:
                 - Fn::Join:
                   - ''
                   - - 'arn:aws:s3:::'
-                    - Ref DeliveryBucket
-                    - '*'
+                    - Ref: DeliveryBucket
+                    - '/*'
 
 
 
-
-
-#              - Effect: Allow
-#                Action: 's3:*'
-#                Resource: { Fn::GetAtt: [ DeliveryBucket, Arn ] }
-#  DeliveryStreamPolicy:
-#    Type: AWS::IAM::Policy
-#    Properties:
-#      Roles:
-#        - Ref DeliveryStreamRole
-#      PolicyName: firehose_delivery_policy
-#      PolicyDocument:
-#        Version: 2012-10-17
-#        Statement:
-#          - Effect: Allow
-#            Action: '*'
-#              - 's3:AbortMultipartUpload'
-#              - 's3:GetBucketLocation'
-#              - 's3:GetObject'
-#              - 's3:ListBucket'
-#              - 's3:ListBucketMultipartUploads'
-#              - 's3:PutObject'
-#            Resource: '*'
-#              - { Fn::GetAtt: [ DeliveryBucket, Arn ] }
-#              - Fn::Join:
-#                - ''
-#                - - 'arn:aws:s3:::'
-#                  - Ref DeliveryBucket
-#                  - '*'
