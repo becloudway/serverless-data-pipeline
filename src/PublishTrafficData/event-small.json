@@ -7,9 +7,9 @@
     "tijd_laatste_config_wijziging": "2019-12-05T10:26:49+01:00",
     "meetpunt": [
       {
-        "@beschrijvende_id": "H222L10",
-        "@unieke_id": "29",
-        "lve_nr": "55",
+        "@beschrijvende_id": "H101L20",
+        "@unieke_id": "50",
+        "lve_nr": "18",
         "tijd_waarneming": "2020-04-06T17:51:00+01:00",
         "tijd_laatst_gewijzigd": "2020-04-06T17:52:20+01:00",
         "actueel_publicatie": "1",
@@ -25,9 +25,9 @@
           },
           {
             "@klasse_id": "2",
-            "verkeersintensiteit": "0",
-            "voertuigsnelheid_rekenkundig": "0",
-            "voertuigsnelheid_harmonisch": "252"
+            "verkeersintensiteit": "1",
+            "voertuigsnelheid_rekenkundig": "110",
+            "voertuigsnelheid_harmonisch": "110"
           },
           {
             "@klasse_id": "3",
@@ -43,21 +43,21 @@
           },
           {
             "@klasse_id": "5",
-            "verkeersintensiteit": "0",
-            "voertuigsnelheid_rekenkundig": "0",
-            "voertuigsnelheid_harmonisch": "252"
+            "verkeersintensiteit": "5",
+            "voertuigsnelheid_rekenkundig": "86",
+            "voertuigsnelheid_harmonisch": "86"
           }
         ],
         "rekendata": {
-          "bezettingsgraad": "0",
+          "bezettingsgraad": "6",
           "beschikbaarheidsgraad": "100",
-          "onrustigheid": "0"
+          "onrustigheid": "86"
         }
       },
       {
-        "@beschrijvende_id": "H222L20",
-        "@unieke_id": "30",
-        "lve_nr": "55",
+        "@beschrijvende_id": "H102L10",
+        "@unieke_id": "51",
+        "lve_nr": "18",
         "tijd_waarneming": "2020-04-06T17:51:00+01:00",
         "tijd_laatst_gewijzigd": "2020-04-06T17:52:20+01:00",
         "actueel_publicatie": "1",
@@ -73,15 +73,15 @@
           },
           {
             "@klasse_id": "2",
-            "verkeersintensiteit": "0",
-            "voertuigsnelheid_rekenkundig": "0",
-            "voertuigsnelheid_harmonisch": "252"
+            "verkeersintensiteit": "6",
+            "voertuigsnelheid_rekenkundig": "110",
+            "voertuigsnelheid_harmonisch": "109"
           },
           {
             "@klasse_id": "3",
-            "verkeersintensiteit": "0",
-            "voertuigsnelheid_rekenkundig": "0",
-            "voertuigsnelheid_harmonisch": "252"
+            "verkeersintensiteit": "1",
+            "voertuigsnelheid_rekenkundig": "94",
+            "voertuigsnelheid_harmonisch": "94"
           },
           {
             "@klasse_id": "4",
@@ -91,15 +91,15 @@
           },
           {
             "@klasse_id": "5",
-            "verkeersintensiteit": "0",
-            "voertuigsnelheid_rekenkundig": "0",
-            "voertuigsnelheid_harmonisch": "252"
+            "verkeersintensiteit": "3",
+            "voertuigsnelheid_rekenkundig": "90",
+            "voertuigsnelheid_harmonisch": "90"
           }
         ],
         "rekendata": {
-          "bezettingsgraad": "0",
+          "bezettingsgraad": "5",
           "beschikbaarheidsgraad": "100",
-          "onrustigheid": "0"
+          "onrustigheid": "128"
         }
       }
     ]

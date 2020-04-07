@@ -19,6 +19,7 @@ provider:
   runtime: python3.7
   region: eu-west-1
   profile: cloudway-nick
+  reservedConcurrency: 1
 
 functions:
   RetrieveXMLTrafficData:
@@ -72,9 +73,12 @@ functions:
             - prefix: xml/input/
             - suffix: .xml
           existing: true
+
   PublishTrafficData:
     handler: handler.handle
     module: src/PublishTrafficData
+    memorySize: 3008
+    timeout: 60
     environment:
       BUCKET_NAME:
         Ref: OriginBucket
