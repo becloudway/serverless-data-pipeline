@@ -9,6 +9,7 @@ s3_resource = boto3.resource('s3')
 s3_client = boto3.client('s3')
 firehose_client = boto3.client('firehose')
 
+
 BUCKET = os.environ["BUCKET_NAME"]
 S3_JSON_PREFIX = os.environ["S3_JSON_PREFIX"]
 DELIVERY_STREAM_NAME = os.environ["DELIVERY_STREAM_NAME"]
@@ -20,7 +21,6 @@ def handle(event, context):
     json_data_blob = get_from_s3(object_key)
     json_data = json.loads(json_data_blob)
     meetpunten = json_data["miv"]["meetpunt"]
-    print('Len of meetpunten: {}'.format(len(meetpunten)))
     events = transform_meetpunten_to_events(meetpunten)
     print('Sending {} events to firehose'.format(len(events)))
     push_data_to_firehose(events)
@@ -96,17 +96,23 @@ def flatten(d, parent_key='', sep='_'):
 
 def push_data_to_firehose(events):
     number_of_events_sent = 0
-    for event in events:
-        if number_of_events_sent % 100 == 0:
+    number_of_events_to_send = len(events)
+    batch = []
+    for i in range(number_of_events_to_send):
+        record = {'Data': json.dumps(events[i])}
+        batch.append(record)
+        if len(batch) == 100 or i == number_of_events_to_send - 1:
+            put_batch(batch)
+            number_of_events_sent += len(batch)
+            batch = []
+
+        if (i+1) % 100 == 0 or i == number_of_events_to_send - 1:
             print('Number of events sent: {}'.format(number_of_events_sent))
-        put_event(json.dumps(event))
-        number_of_events_sent += 1
 
 
-def put_event(data):
-    response = firehose_client.put_record(
+def put_batch(batch):
+    response = firehose_client.put_record_batch(
         DeliveryStreamName=DELIVERY_STREAM_NAME,
-        Record={
-            'Data': data
-        }
+        Records=batch
     )
+

@@ -77,7 +77,7 @@ functions:
   PublishTrafficData:
     handler: handler.handle
     module: src/PublishTrafficData
-    memorySize: 3008
+    memorySize: 1024
     timeout: 60
     environment:
       BUCKET_NAME:
