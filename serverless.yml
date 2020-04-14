@@ -20,11 +20,16 @@ provider:
   region: eu-west-1
   profile: cloudway-nick
   reservedConcurrency: 1
+  environment:
+    LUMIGO_TRACER_TOKEN: ${ssm:/lumigo/token}
+    LUMIGO_ORIGINAL_HANDLER: handler.handle
 
 functions:
   RetrieveXMLTrafficData:
-    handler: handler.handle
+    handler: /opt/python/lumigo_tracer._handler
     module: src/RetrieveXMLTrafficData
+    layers:
+      - arn:aws:lambda:eu-west-1:114300393969:layer:lumigo-python-tracer:115
     environment:
       TRAFFIC_DATA_URL: "http://miv.opendata.belfla.be/miv/verkeersdata"
       BUCKET_NAME:
@@ -46,8 +51,10 @@ functions:
           enabled: false
 
   TransformTrafficToJsonData:
-    handler: handler.handle
+    handler: /opt/python/lumigo_tracer._handler
     module: src/TransformTrafficDataToJson
+    layers:
+      - arn:aws:lambda:eu-west-1:114300393969:layer:lumigo-python-tracer:115
     environment:
       BUCKET_NAME:
         Ref: OriginBucket
@@ -75,10 +82,12 @@ functions:
           existing: true
 
   PublishTrafficData:
-    handler: handler.handle
+    handler: /opt/python/lumigo_tracer._handler
     module: src/PublishTrafficData
     memorySize: 1024
     timeout: 60
+    layers:
+      - arn:aws:lambda:eu-west-1:114300393969:layer:lumigo-python-tracer:115
     environment:
       BUCKET_NAME:
         Ref: OriginBucket
