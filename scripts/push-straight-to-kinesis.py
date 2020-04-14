@@ -7,10 +7,10 @@ firehose_client = boto3.client('firehose')
 KINESIS_FIREHOSE_NAME = 'sls-data-pipelines-dev-DeliveryStream-ME98UYAFP4R0'
 
 car_speeds = [120] * 10 \
-             + list(reversed(range(100, 120, 10))) \
-             + list(reversed(range(40, 100, 20))) \
+             + list(reversed(range(100, 120, 5))) \
+             + list(reversed(range(40, 100, 10))) \
              + list(reversed(range(10, 40))) \
-             + list(range(10, 50, 15)) \
+             + list(range(10, 50, 10)) \
              + list(range(50, 110, 5))
 
 
@@ -37,18 +37,30 @@ def put_record(client, delivery_stream_name, meetpunt):
     print(pretty_output(response))
 
 
-def put_records_on_stream():
+def put_records_on_stream(list_of_meetpunten):
     index = 0
     for speed in car_speeds:
         print("put %d" % index)
-        updated_meetpunt = update_meetpunt(json.loads(meetpunt), speed)
-        put_record(firehose_client, KINESIS_FIREHOSE_NAME, updated_meetpunt)
+        for meetpunt in list_of_meetpunten:
+            updated_meetpunt = update_meetpunt(meetpunt, speed)
+            put_record(firehose_client, KINESIS_FIREHOSE_NAME, updated_meetpunt)
         time.sleep(1)
         index += 1
+
+
+def create_diff_meetpunten(meetpunt):
+    meetpunten = []
+    meetpunt1 = meetpunt
+    meetpunten.append(meetpunt1)
+    # meetpunt2 = meetpunt1.copy()
+    # meetpunt2["unieke_id"] = 100
+    # meetpunten.append(meetpunt2)
+    return meetpunten
 
 
 if __name__ == "__main__":
     meetpunt = None
     with open('event.json', 'r') as f:
         meetpunt = f.read()
-    put_records_on_stream()
+    list_of_meetpunten = create_diff_meetpunten(json.loads(meetpunt))
+    put_records_on_stream(list_of_meetpunten)

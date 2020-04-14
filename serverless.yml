@@ -119,6 +119,26 @@ functions:
             - suffix: .json
           existing: true
 
+  ProcessAnalyticsResults:
+    handler: /opt/python/lumigo_tracer._handler
+    module: src/ProcessAnalyticsResults
+    memorySize: 1024
+    timeout: 60
+    layers:
+      - arn:aws:lambda:eu-west-1:114300393969:layer:lumigo-python-tracer:115
+    environment:
+      TABLE_NAME: !Ref AnalyticsResultsTable
+    iamRoleStatements:
+      - Effect: "Allow"
+        Action:
+          - "dynamodb:DescribeStream"
+          - "dynamodb:DescribeTable"
+          - "dynamodb:BatchWrite*"
+          - "dynamodb:Delete*"
+          - "dynamodb:Update*"
+          - "dynamodb:PutItem"
+        Resource: !GetAtt AnalyticsResultsTable.Arn
+
 resources:
   - ${file(resources/firehose.yml)}
   - Resources:
@@ -130,6 +150,18 @@ resources:
         Type: AWS::S3::Bucket
         Properties:
           BucketName: traffic-data-destination-bucket
+      AnalyticsResultsTable:
+        Type: AWS::DynamoDB::Table
+        Properties:
+          AttributeDefinitions:
+            - AttributeName: "id"
+              AttributeType: "S"
+          KeySchema:
+            - AttributeName: "id"
+              KeyType: "HASH"
+          ProvisionedThroughput:
+            ReadCapacityUnits: 5
+            WriteCapacityUnits: 5
   #  Outputs:
   #     NewOutput:
   #       Description: "Description for the output"
