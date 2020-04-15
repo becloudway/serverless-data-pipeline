@@ -1,0 +1,7 @@
+Resources:
+  ProcessAnalyticsDeadQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      DelaySeconds: 5
+      MessageRetentionPeriod: 86400 # 1 Day
+      QueueName: ${self:service.name}-${self:provider.stage}-process-analytics-dead-queue

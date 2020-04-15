@@ -1,6 +1,7 @@
 import json
 import boto3
 import os
+import dateutil.parser as dp
 import logging
 from collections.abc import MutableMapping
 
@@ -45,6 +46,15 @@ def transform_meetpunten_to_events(meetpunten):
     return events
 
 
+def update_event_time(event):
+    current = str(event["tijd_waarneming"])
+    new_event = event.copy()
+    parsed_t = dp.parse(current)
+    t_in_seconds = parsed_t.strftime('%s')
+    new_event["tijd_waarneming"] = str(t_in_seconds)
+    return new_event
+
+
 def transform_meetpunt_to_event(meetpunt):
     event = meetpunt
     event = clean_keys(event)
@@ -55,7 +65,8 @@ def transform_meetpunt_to_event(meetpunt):
     rekendata_flattened = flatten({"rekendata": event["rekendata"]})
     event.pop("rekendata")
     event.update(rekendata_flattened)
-    return event
+    updated_event = update_event_time(event)
+    return updated_event
 
 
 def generate_meetdata_dict(meetdata):

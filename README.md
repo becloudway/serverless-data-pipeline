@@ -82,3 +82,17 @@ Deze gegevens worden door AWV en het verkeerscentrum niet meer gebruikt.
 * Voertuigklasse 3 = Bestelwagens = voertuigen met geschatte lengte tussen 4,90m en 6,90m 
 * Voertuigklasse 4 = Ongelede vrachtwagens = voertuigen metvgeschatte lengte tussen 6,90m en 12,00m bv.:Vrachtwagen of trekker 
 * Voertuigklasse 5 = Gelede vrachtwagens of bussen= voertuigen met geschatte lengte langer dan 12,00m bv.: vrachtwagen+aanhangwagen, trekker+aanhangwagen of bus
+
+## Todo
+* add stream and pump (also towards output) for traffic jam alert
+* trace all / or multiple filtered amount of locations
+* deal with -1
+* check if the results are valid
+* add static list with location to match in analytics
+* account for speed is 252
+* save aggregation in dynamodb
+
+* quality check
+* aggregate right
+* save
+* send to kinesis

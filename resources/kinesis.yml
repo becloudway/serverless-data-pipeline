@@ -1,0 +1,5 @@
+Resources:
+  DestinationStream:
+    Type: AWS::Kinesis::Stream
+    Properties:
+      ShardCount: 1

@@ -7,11 +7,12 @@ firehose_client = boto3.client('firehose')
 KINESIS_FIREHOSE_NAME = 'sls-data-pipelines-dev-DeliveryStream-ME98UYAFP4R0'
 
 car_speeds = [120] * 10 \
-             + list(reversed(range(100, 120, 5))) \
-             + list(reversed(range(40, 100, 10))) \
-             + list(reversed(range(10, 40))) \
-             + list(range(10, 50, 10)) \
-             + list(range(50, 110, 5))
+             + list(range(120, 100, -5)) \
+             + list(range(100, 40, -10)) \
+             + list(range(40, 10, -2))
+# + list(reversed(range(10, 40))) \
+# + list(range(10, 50, 10)) \
+# + list(range(50, 110, 5))
 
 
 def pretty_output(response):
@@ -28,6 +29,7 @@ def update_meetpunt(meetpunt, car_speed):
 
 
 def put_record(client, delivery_stream_name, meetpunt):
+    print(json.dumps(meetpunt))
     response = client.put_record(
         DeliveryStreamName=delivery_stream_name,
         Record={

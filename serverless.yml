@@ -20,6 +20,9 @@ provider:
   region: eu-west-1
   profile: cloudway-nick
   reservedConcurrency: 1
+  versionFunctions: false
+  iamManagedPolicies:
+    - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
   environment:
     LUMIGO_TRACER_TOKEN: ${ssm:/lumigo/token}
     LUMIGO_ORIGINAL_HANDLER: handler.handle
@@ -35,6 +38,7 @@ functions:
       BUCKET_NAME:
         Ref: OriginBucket
       S3_XML_PREFIX: "xml/input/"
+    iamRoleStatementsInherit: true
     iamRoleStatements:
       - Effect: "Allow"
         Action:
@@ -60,6 +64,7 @@ functions:
         Ref: OriginBucket
       S3_XML_PREFIX: "xml/input/"
       S3_JSON_PREFIX: "json/input/"
+    iamRoleStatementsInherit: true
     iamRoleStatements:
       - Effect: "Allow"
         Action:
@@ -94,6 +99,7 @@ functions:
       S3_JSON_PREFIX: "json/input/"
       DELIVERY_STREAM_NAME:
         Ref: DeliveryStream
+    iamRoleStatementsInherit: true
     iamRoleStatements:
       - Effect: "Allow"
         Action:
@@ -124,11 +130,19 @@ functions:
     module: src/ProcessAnalyticsResults
     memorySize: 1024
     timeout: 60
+    reservedConcurrency: 5
     layers:
       - arn:aws:lambda:eu-west-1:114300393969:layer:lumigo-python-tracer:115
     environment:
       TABLE_NAME: !Ref AnalyticsResultsTable
+    iamRoleStatementsInherit: true
     iamRoleStatements:
+      - Effect: "Allow"
+        Action:
+          - "kinesis:DescribeStream"
+          - "kinesis:GetShardIterator"
+          - "kinesis:GetRecords"
+        Resource: !GetAtt DestinationStream.Arn
       - Effect: "Allow"
         Action:
           - "dynamodb:DescribeStream"
@@ -138,9 +152,30 @@ functions:
           - "dynamodb:Update*"
           - "dynamodb:PutItem"
         Resource: !GetAtt AnalyticsResultsTable.Arn
+      - Effect: "Allow"
+        Action:
+          - "sqs:SendMessage"
+          - "sqs:ListQueues"
+        Resource: !GetAtt ProcessAnalyticsDeadQueue.Arn
+    events:
+      - stream:
+          type: kinesis
+          arn: !GetAtt DestinationStream.Arn
+          batchSize: 10
+          batchWindow: 30
+#          bisectBatchOnFunctionError: true
+          maximumRetryAttempts: 2
+          startingPosition: TRIM_HORIZON
+          enabled: true
+          destinations:
+            onFailure:
+              arn: !GetAtt ProcessAnalyticsDeadQueue.Arn
+              type: sqs
 
 resources:
   - ${file(resources/firehose.yml)}
+  - ${file(resources/kinesis.yml)}
+  - ${file(resources/sqs.yml)}
   - Resources:
       OriginBucket:
         Type: AWS::S3::Bucket
@@ -154,11 +189,15 @@ resources:
         Type: AWS::DynamoDB::Table
         Properties:
           AttributeDefinitions:
-            - AttributeName: "id"
+            - AttributeName: "uniqueId"
+              AttributeType: "S"
+            - AttributeName: "recordTimestamp"
               AttributeType: "S"
           KeySchema:
-            - AttributeName: "id"
+            - AttributeName: "uniqueId"
               KeyType: "HASH"
+            - AttributeName: "recordTimestamp"
+              KeyType: "RANGE"
           ProvisionedThroughput:
             ReadCapacityUnits: 5
             WriteCapacityUnits: 5
