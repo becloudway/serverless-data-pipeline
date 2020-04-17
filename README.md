@@ -84,15 +84,19 @@ Deze gegevens worden door AWV en het verkeerscentrum niet meer gebruikt.
 * Voertuigklasse 5 = Gelede vrachtwagens of bussen= voertuigen met geschatte lengte langer dan 12,00m bv.: vrachtwagen+aanhangwagen, trekker+aanhangwagen of bus
 
 ## Todo
-* add stream and pump (also towards output) for traffic jam alert
-* trace all / or multiple filtered amount of locations
+* add batch save
+* implement alerting
 * deal with -1
+* account for speed is 252
+* write system tests
+* sharding key is outputType
+* trace all / or multiple filtered amount of locations
 * check if the results are valid
 * add static list with location to match in analytics
-* account for speed is 252
-* save aggregation in dynamodb
 
+* save aggregation in dynamodb
 * quality check
 * aggregate right
 * save
 * send to kinesis
+* add stream and pump (also towards output) for traffic jam alert

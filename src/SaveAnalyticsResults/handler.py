@@ -14,20 +14,17 @@ def handle(event, context):
     print(event)
     for record in event['Records']:
         try:
-            body_as_string = record.get('body')
-            body = json.loads(body_as_string)
-            print(json.dumps(body))
-
-            message_as_string = body.get('Message')
-            message = json.loads(message_as_string)
-            print(json.dumps(message))
+            payload = base64.b64decode(record['kinesis']['data'])
+            data = json.loads(payload)
+            print(json.dumps(data))
+            print('Handling item')
             item = None
-            if message.get('outputType') == 'SPEED_DIFFERENTIAL':
+            if data.get('outputType') == 'SPEED_DIFFERENTIAL':
                 print('type is speed')
-                item = create_speed_item(message)
-            elif message.get('outputType') == 'TRAFFIC_JAM':
+                item = create_speed_item(data)
+            elif data.get('outputType') == 'TRAFFIC_JAM':
                 print('type is jam')
-                item = create_traffic_jam_item(message)
+                item = create_traffic_jam_item(data)
             print('Saving item {}'.format(json.dumps(item)))
             table.put_item(Item=item)
             print('Item successfully saved')

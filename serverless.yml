@@ -130,14 +130,13 @@ functions:
             - suffix: .json
           existing: true
 
-  FanOutAnalyticsResults:
+  TrafficAlertsFunction:
     handler: /opt/python/lumigo_tracer._handler
-    module: src/FanOutAnalyticsResults
+    module: src/TrafficAlertsFunction
     memorySize: 1024
-    timeout: 60
-    reservedConcurrency: 5
+    timeout: 10
+    reservedConcurrency: 0
     environment:
-      TOPIC_ARN_FAN_OUT: !Ref AnalyticsFanOutTopic
       REGION: eu-west-1
     layers:
       - arn:aws:lambda:eu-west-1:114300393969:layer:lumigo-python-tracer:115
@@ -151,13 +150,15 @@ functions:
         Resource: !GetAtt DestinationStream.Arn
       - Effect: "Allow"
         Action:
+          - "kinesis:DescribeStream"
+          - "kinesis:GetShardIterator"
+          - "kinesis:GetRecords"
+        Resource: !GetAtt DestinationStream.Arn
+      - Effect: "Allow"
+        Action:
           - "sqs:SendMessage"
           - "sqs:ListQueues"
-        Resource: !GetAtt FanOutAnalyticsDeadQueue.Arn
-      - Effect: Allow
-        Action:
-          - sns:Publish
-        Resource: !Ref AnalyticsFanOutTopic
+        Resource: !GetAtt TrafficAlertsDeadQueue.Arn
     events:
       - stream:
           type: kinesis
@@ -169,7 +170,7 @@ functions:
           enabled: true
           destinations:
             onFailure:
-              arn: !GetAtt FanOutAnalyticsDeadQueue.Arn
+              arn: !GetAtt TrafficAlertsDeadQueue.Arn
               type: sqs
 
   SaveAnalyticsResults:
@@ -177,13 +178,19 @@ functions:
     module: src/SaveAnalyticsResults
     memorySize: 1024
     timeout: 10
-    reservedConcurrency: 5
+    reservedConcurrency: 1
     layers:
       - arn:aws:lambda:eu-west-1:114300393969:layer:lumigo-python-tracer:115
     environment:
       TABLE_NAME: !Ref AnalyticsResultsTable
     iamRoleStatementsInherit: true
     iamRoleStatements:
+      - Effect: "Allow"
+        Action:
+          - "kinesis:DescribeStream"
+          - "kinesis:GetShardIterator"
+          - "kinesis:GetRecords"
+        Resource: !GetAtt DestinationStream.Arn
       - Effect: "Allow"
         Action:
           - "dynamodb:DescribeStream"
@@ -199,9 +206,18 @@ functions:
           - "sqs:ListQueues"
         Resource: !GetAtt SaveAnalyticsDeadQueue.Arn
     events:
-      - sqs:
-          arn: !GetAtt AnalyticsSaveResultQueue.Arn
+      - stream:
+          type: kinesis
+          arn: !GetAtt DestinationStream.Arn
           batchSize: 10
+          batchWindow: 30
+          maximumRetryAttempts: 2
+          startingPosition: LATEST
+          enabled: true
+          destinations:
+            onFailure:
+              arn: !GetAtt SaveAnalyticsDeadQueue.Arn
+              type: sqs
 
 
 resources:
@@ -233,39 +249,8 @@ resources:
           ProvisionedThroughput:
             ReadCapacityUnits: 5
             WriteCapacityUnits: 5
-      AnalyticsFanOutTopic:
-        Type: AWS::SNS::Topic
-        Properties:
-          Subscription:
-#            - Endpoint: !GetAtt AnalyticsAlertQueue.Arn
-#              Protocol: sqs
-            - Endpoint: !GetAtt AnalyticsSaveResultQueue.Arn
-              Protocol: sqs
 
-      AnalyticsAlertQueue:
-        Type: AWS::SQS::Queue
 
-      AnalyticsSaveResultQueue:
-        Type: AWS::SQS::Queue
-
-      AnalyticsFanOutTopicToAnalyticsSaveResultQueuePermission:
-        Type: AWS::SQS::QueuePolicy
-        Properties:
-          PolicyDocument:
-            Statement:
-              - Effect: Allow
-                Principal:
-                  Service: sns.amazonaws.com
-                Action:
-                 - "sqs:SendMessage"
-                Resource: '*'
-                Condition:
-                  ArnEquals:
-                    aws:SourceArn:
-                      Ref: AnalyticsFanOutTopic
-          Queues:
-            - Ref: AnalyticsSaveResultQueue
-            - Ref: AnalyticsAlertQueue
 
   #  Outputs:
   #     NewOutput:
