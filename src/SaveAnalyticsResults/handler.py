@@ -12,24 +12,24 @@ def handle(event, context):
     print("START----------------------------------------------START")
 
     print(event)
-    for record in event['Records']:
-        try:
-            payload = base64.b64decode(record['kinesis']['data'])
-            data_item = json.loads(payload)
-            print(json.dumps(data_item))
-            item = None
-            if data_item.get('outputType') == 'SPEED_DIFFERENTIAL':
-                print('type is speed')
-                item = create_speed_item(data_item)
-            elif data_item.get('outputType') == 'TRAFFIC_JAM':
-                print('type is jam')
-                item = create_traffic_jam_item(data_item)
-            print('Saving item {}'.format(json.dumps(item)))
-            table.put_item(Item=item)
-            print('Item successfully saved')
-        except Exception as e:
-            print(e)
-            print("failure")
+    # for record in event['Records']:
+    #     try:
+    #         payload = base64.b64decode(record['kinesis']['data'])
+    #         data_item = json.loads(payload)
+    #         print(json.dumps(data_item))
+    #         item = None
+    #         if data_item.get('outputType') == 'SPEED_DIFFERENTIAL':
+    #             print('type is speed')
+    #             item = create_speed_item(data_item)
+    #         elif data_item.get('outputType') == 'TRAFFIC_JAM':
+    #             print('type is jam')
+    #             item = create_traffic_jam_item(data_item)
+    #         print('Saving item {}'.format(json.dumps(item)))
+    #         table.put_item(Item=item)
+    #         print('Item successfully saved')
+    #     except Exception as e:
+    #         print(e)
+    #         print("failure")
 
     print("END----------------------------------------------END")
 

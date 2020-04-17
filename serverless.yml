@@ -21,8 +21,13 @@ provider:
   profile: cloudway-nick
   reservedConcurrency: 1
   versionFunctions: false
-  iamManagedPolicies:
-    - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - "logs:CreateLogGroup"
+        - "logs:CreateLogStream"
+        - "logs:PutLogEvents"
+      Resource: '*'
   environment:
     LUMIGO_TRACER_TOKEN: ${ssm:/lumigo/token}
     LUMIGO_ORIGINAL_HANDLER: handler.handle
@@ -125,16 +130,17 @@ functions:
             - suffix: .json
           existing: true
 
-  ProcessAnalyticsResults:
+  FanOutAnalyticsResults:
     handler: /opt/python/lumigo_tracer._handler
-    module: src/ProcessAnalyticsResults
+    module: src/FanOutAnalyticsResults
     memorySize: 1024
     timeout: 60
     reservedConcurrency: 5
+    environment:
+      TOPIC_ARN_FAN_OUT: !Ref AnalyticsFanOutTopic
+      REGION: eu-west-1
     layers:
       - arn:aws:lambda:eu-west-1:114300393969:layer:lumigo-python-tracer:115
-    environment:
-      TABLE_NAME: !Ref AnalyticsResultsTable
     iamRoleStatementsInherit: true
     iamRoleStatements:
       - Effect: "Allow"
@@ -143,6 +149,41 @@ functions:
           - "kinesis:GetShardIterator"
           - "kinesis:GetRecords"
         Resource: !GetAtt DestinationStream.Arn
+      - Effect: "Allow"
+        Action:
+          - "sqs:SendMessage"
+          - "sqs:ListQueues"
+        Resource: !GetAtt FanOutAnalyticsDeadQueue.Arn
+      - Effect: Allow
+        Action:
+          - sns:Publish
+        Resource: !Ref AnalyticsFanOutTopic
+    events:
+      - stream:
+          type: kinesis
+          arn: !GetAtt DestinationStream.Arn
+          batchSize: 10
+          batchWindow: 30
+          maximumRetryAttempts: 2
+          startingPosition: TRIM_HORIZON
+          enabled: true
+          destinations:
+            onFailure:
+              arn: !GetAtt FanOutAnalyticsDeadQueue.Arn
+              type: sqs
+
+  SaveAnalyticsResults:
+    handler: /opt/python/lumigo_tracer._handler
+    module: src/SaveAnalyticsResults
+    memorySize: 1024
+    timeout: 10
+    reservedConcurrency: 5
+    layers:
+      - arn:aws:lambda:eu-west-1:114300393969:layer:lumigo-python-tracer:115
+    environment:
+      TABLE_NAME: !Ref AnalyticsResultsTable
+    iamRoleStatementsInherit: true
+    iamRoleStatements:
       - Effect: "Allow"
         Action:
           - "dynamodb:DescribeStream"
@@ -156,21 +197,12 @@ functions:
         Action:
           - "sqs:SendMessage"
           - "sqs:ListQueues"
-        Resource: !GetAtt ProcessAnalyticsDeadQueue.Arn
+        Resource: !GetAtt SaveAnalyticsDeadQueue.Arn
     events:
-      - stream:
-          type: kinesis
-          arn: !GetAtt DestinationStream.Arn
+      - sqs:
+          arn: !GetAtt AnalyticsSaveResultQueue.Arn
           batchSize: 10
-          batchWindow: 30
-#          bisectBatchOnFunctionError: true
-          maximumRetryAttempts: 2
-          startingPosition: TRIM_HORIZON
-          enabled: true
-          destinations:
-            onFailure:
-              arn: !GetAtt ProcessAnalyticsDeadQueue.Arn
-              type: sqs
+
 
 resources:
   - ${file(resources/firehose.yml)}
@@ -201,6 +233,40 @@ resources:
           ProvisionedThroughput:
             ReadCapacityUnits: 5
             WriteCapacityUnits: 5
+      AnalyticsFanOutTopic:
+        Type: AWS::SNS::Topic
+        Properties:
+          Subscription:
+#            - Endpoint: !GetAtt AnalyticsAlertQueue.Arn
+#              Protocol: sqs
+            - Endpoint: !GetAtt AnalyticsSaveResultQueue.Arn
+              Protocol: sqs
+
+      AnalyticsAlertQueue:
+        Type: AWS::SQS::Queue
+
+      AnalyticsSaveResultQueue:
+        Type: AWS::SQS::Queue
+
+      AnalyticsFanOutTopicToAnalyticsSaveResultQueuePermission:
+        Type: AWS::SQS::QueuePolicy
+        Properties:
+          PolicyDocument:
+            Statement:
+              - Effect: Allow
+                Principal:
+                  Service: sns.amazonaws.com
+                Action:
+                 - "sqs:SendMessage"
+                Resource: '*'
+                Condition:
+                  ArnEquals:
+                    aws:SourceArn:
+                      Ref: AnalyticsFanOutTopic
+          Queues:
+            - Ref: AnalyticsSaveResultQueue
+            - Ref: AnalyticsAlertQueue
+
   #  Outputs:
   #     NewOutput:
   #       Description: "Description for the output"

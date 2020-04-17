@@ -1,7 +1,13 @@
 Resources:
-  ProcessAnalyticsDeadQueue:
+  SaveAnalyticsDeadQueue:
     Type: AWS::SQS::Queue
     Properties:
       DelaySeconds: 5
       MessageRetentionPeriod: 86400 # 1 Day
       QueueName: ${self:service.name}-${self:provider.stage}-process-analytics-dead-queue
+  FanOutAnalyticsDeadQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      DelaySeconds: 5
+      MessageRetentionPeriod: 86400 # 1 Day
+      QueueName: ${self:service.name}-${self:provider.stage}-fan-out-analytics-dead-queue
