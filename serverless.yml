@@ -239,12 +239,12 @@ resources:
           AttributeDefinitions:
             - AttributeName: "uniqueId"
               AttributeType: "S"
-            - AttributeName: "recordTimestamp"
+            - AttributeName: "outputType_recordTimestamp"
               AttributeType: "S"
           KeySchema:
             - AttributeName: "uniqueId"
               KeyType: "HASH"
-            - AttributeName: "recordTimestamp"
+            - AttributeName: "outputType_recordTimestamp"
               KeyType: "RANGE"
           ProvisionedThroughput:
             ReadCapacityUnits: 5
