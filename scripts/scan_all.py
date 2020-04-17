@@ -11,4 +11,3 @@ while 'LastEvaluatedKey' in response:
     data.extend(response['Items'])
 
 print(len(data))
-print(data[0])
