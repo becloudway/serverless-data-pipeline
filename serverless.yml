@@ -165,7 +165,7 @@ functions:
           batchSize: 10
           batchWindow: 30
           maximumRetryAttempts: 2
-          startingPosition: TRIM_HORIZON
+          startingPosition: LATEST
           enabled: true
           destinations:
             onFailure:
