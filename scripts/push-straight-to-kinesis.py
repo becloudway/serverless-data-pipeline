@@ -1,6 +1,7 @@
 import boto3
 import json
 import time
+import os
 
 firehose_client = boto3.client('firehose')
 
@@ -46,6 +47,7 @@ def put_records_on_stream(list_of_meetpunten):
         for meetpunt in list_of_meetpunten:
             updated_meetpunt = update_meetpunt(meetpunt, speed)
             put_record(firehose_client, KINESIS_FIREHOSE_NAME, updated_meetpunt)
+            save_event_that_was_sent(updated_meetpunt)
         time.sleep(1)
         index += 1
 
@@ -60,7 +62,14 @@ def create_diff_meetpunten(meetpunt):
     return meetpunten
 
 
+def save_event_that_was_sent(event):
+    with open('events-sent.json', 'a+') as f:
+        f.write(json.dumps(event))
+        f.write('\n')
+
+
 if __name__ == "__main__":
+    os.remove('events-sent.json')
     meetpunt = None
     with open('event.json', 'r') as f:
         meetpunt = f.read()

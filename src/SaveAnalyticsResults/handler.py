@@ -28,10 +28,7 @@ def handle(event, context):
                     item = create_traffic_jam_item(data)
                 sort_key = create_sort_key(item)
                 item["outputType_recordTimestamp"] = sort_key
-
-                print('Saving item {}'.format(json.dumps(item)))
                 batch.put_item(Item=item)
-                print('Item successfully saved')
             except Exception as e:
                 print(e)
                 print("failure")
