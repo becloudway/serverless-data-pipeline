@@ -11,6 +11,7 @@ plugins:
 
 custom:
   firehoseS3Prefix: 'destination/'
+  firehoseS3AnylticsResultsPrefix: 'analytics/results/'
   firehoseCompressionFormat: UNCOMPRESSED
 
 
@@ -233,6 +234,8 @@ resources:
         Type: AWS::S3::Bucket
         Properties:
           BucketName: traffic-data-destination-bucket
+      AnalyticsBucket:
+        Type: AWS::S3::Bucket
       AnalyticsResultsTable:
         Type: AWS::DynamoDB::Table
         Properties:

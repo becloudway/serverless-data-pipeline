@@ -59,5 +59,54 @@ Resources:
                     - Ref: DeliveryBucket
                     - '/*'
 
+  AnalyticsResultStream:
+    Type: AWS::KinesisFirehose::DeliveryStream
+    Properties:
+      DeliveryStreamType: DirectPut
+      ExtendedS3DestinationConfiguration:
+        Prefix: ${self:custom.firehoseS3AnylticsResultsPrefix}
+        ErrorOutputPrefix: error/
+        BucketARN: !GetAtt AnalyticsBucket.Arn
+        BufferingHints:
+          IntervalInSeconds: 60
+          SizeInMBs: 1
+        CompressionFormat: ${self:custom.firehoseCompressionFormat}
+        RoleARN: !GetAtt AnalyticsResultStreamRole.Arn
+        CloudWatchLoggingOptions:
+          Enabled: true
+          LogGroupName: "AnalyticsResultStream"
+          LogStreamName: "s3Delivery"
+
+  AnalyticsResultStreamRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal: { Service: [ firehose.amazonaws.com ] }
+            Action: [ sts:AssumeRole ]
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+            - Effect: Allow
+              Action:
+                - 's3:AbortMultipartUpload'
+                - 's3:GetBucketLocation'
+                - 's3:GetObject'
+                - 's3:ListBucket'
+                - 's3:ListBucketMultipartUploads'
+                - 's3:PutObject'
+              Resource:
+                - { Fn::GetAtt: [ AnalyticsBucket, Arn ] }
+                - Fn::Join:
+                  - ''
+                  - - 'arn:aws:s3:::'
+                    - Ref: AnalyticsBucket
+                    - '/*'
+
+
 
 
