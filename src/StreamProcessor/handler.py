@@ -48,7 +48,7 @@ def check_and_update_payload(payload, result):
     if should_forward:
         result = 'Ok'
         updated_payload = remove_non_measurements(payload)
-        print(f"Updated payload is ${updated_payload}")
+        print(f"Updated payload is {updated_payload}")
     return result, updated_payload
 
 
@@ -57,9 +57,12 @@ def matches_filter_criteria(payload=None):
     if filter_ids == '*':
         return True
     else:
-        filter_ids.replace(" ", "")
+        filter_ids = filter_ids.replace(" ", "")
         permitted_ids = filter_ids.split(",")
         if payload.get("unieke_id") in permitted_ids:
+            payload_id = payload.get("unieke_id")
+            print(f"Payload matched cause it has id: {payload_id}")
+            print("Permitted ids are {}".format(permitted_ids))
             print("Forwarding payload")
             print(json.dumps(payload))
             return True

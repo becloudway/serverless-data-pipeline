@@ -14,7 +14,7 @@ def test_filter_criteria_returns_true_when_id_in_filtered_list():
 
     with open('./payload.json', 'r') as f:
         payload = json.loads(f.read())
-    payload["klasse_id"] = "50"
+    payload["unieke_id"] = "60"
 
     assert handler.matches_filter_criteria(payload) is True, "Test filter criteria failed"
 
@@ -25,9 +25,9 @@ def test_filter_criteria_returns_false_when_id_not_in_filtered_list():
 
     with open('./payload.json', 'r') as f:
         payload = json.loads(f.read())
-    payload["klasse_id"] = "70"
+    payload["unieke_id"] = "70"
 
-    assert handler.matches_filter_criteria(payload) is True, "Test filter criteria failed"
+    assert handler.matches_filter_criteria(payload) is False, "Test filter criteria failed"
 
 
 def test_filter_criteria_returns_true_when_no_restrictions():
@@ -36,7 +36,7 @@ def test_filter_criteria_returns_true_when_no_restrictions():
 
     with open('./payload.json', 'r') as f:
         payload = json.loads(f.read())
-    payload["klasse_id"] = "70"
+    payload["unieke_id"] = "70"
 
     assert handler.matches_filter_criteria(payload) is True, "Test filter criteria failed"
 

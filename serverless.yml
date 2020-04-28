@@ -139,7 +139,7 @@ functions:
     memorySize: 1024
     timeout: 300
     environment:
-      FILTER_IDS: '2341'
+      FILTER_IDS: '2341, 235'
     layers:
       - arn:aws:lambda:eu-west-1:114300393969:layer:lumigo-python-tracer:115
     iamRoleStatementsInherit: true
