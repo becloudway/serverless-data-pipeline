@@ -13,15 +13,18 @@ custom:
   firehoseS3Prefix: 'destination/'
   firehoseS3AnylticsResultsPrefix: 'analytics/results/'
   firehoseCompressionFormat: UNCOMPRESSED
+  stage: "${opt:stage, self:provider.stage}"
 
 
 provider:
   name: aws
+  stage: dev
   runtime: python3.7
   region: eu-west-1
   profile: cloudway-nick
   reservedConcurrency: 1
   versionFunctions: false
+  timeout: 30
   iamRoleStatements:
     - Effect: "Allow"
       Action:
@@ -96,7 +99,6 @@ functions:
     handler: /opt/python/lumigo_tracer._handler
     module: src/PublishTrafficData
     memorySize: 1024
-    timeout: 60
     layers:
       - arn:aws:lambda:eu-west-1:114300393969:layer:lumigo-python-tracer:115
     environment:
@@ -130,6 +132,21 @@ functions:
             - prefix: json/input/
             - suffix: .json
           existing: true
+
+  StreamProcessor:
+    handler: /opt/python/lumigo_tracer._handler
+    module: src/StreamProcessor
+    memorySize: 1024
+    timeout: 300
+    layers:
+      - arn:aws:lambda:eu-west-1:114300393969:layer:lumigo-python-tracer:115
+    iamRoleStatementsInherit: true
+    iamRoleStatements:
+      - Effect: "Allow"
+        Action:
+          - "firehose:PutRecord"
+          - "firehose:PutRecordBatch"
+        Resource: !GetAtt DeliveryStream.Arn
 
   TrafficAlertsFunction:
     handler: /opt/python/lumigo_tracer._handler

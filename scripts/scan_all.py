@@ -1,7 +1,7 @@
 import boto3
 dynamodb = boto3.resource('dynamodb', region_name="eu-west-1")
 
-table = dynamodb.Table('sls-data-pipelines-dev-AnalyticsResultsTable-TC5J0ZRQDWBF')
+table = dynamodb.Table('sls-data-pipelines-dev-AnalyticsResultsTable-1DASMYSD0S9IR')
 
 response = table.scan()
 data = response['Items']
