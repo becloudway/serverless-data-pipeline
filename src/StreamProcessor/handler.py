@@ -22,17 +22,13 @@ def handle(event, context):
     output = []
 
     for record in event['records']:
-        print(record['recordId'])
         payload = base64.b64decode(record['data'])
 
-        print(payload.decode("utf-8"))
-        print(type(payload))
+        # print(payload.decode("utf-8"))
         result = 'Dropped'
 
         # Do custom processing on the payload here
         result, updated_payload = check_and_update_payload(json.loads(payload.decode("utf-8")), result)
-
-        print(f"Updated payload is ${updated_payload}")
 
         output_record = {
             'recordId': record['recordId'],
@@ -52,6 +48,7 @@ def check_and_update_payload(payload, result):
     if should_forward:
         result = 'Ok'
         updated_payload = remove_non_measurements(payload)
+        print(f"Updated payload is ${updated_payload}")
     return result, updated_payload
 
 
@@ -63,6 +60,8 @@ def matches_filter_criteria(payload=None):
         filter_ids.replace(" ", "")
         permitted_ids = filter_ids.split(",")
         if payload.get("unieke_id") in permitted_ids:
+            print("Forwarding payload")
+            print(json.dumps(payload))
             return True
     return False
 
