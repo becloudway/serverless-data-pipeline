@@ -18,14 +18,14 @@ Resources:
           Enabled: true
           LogGroupName: "deliveryStream"
           LogStreamName: "s3Delivery"
-        ProcessingConfiguration:
-          Enabled: true
-          Processors:
-            - Type: Lambda
-              Parameters:
-                - ParameterName: LambdaArn
-                  ParameterValue: !Sub "arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:${self:service}-${self:custom.stage}-StreamProcessor"
-#                  ParameterValue: !GetAtt StreamProcessorLambdaFunction.Arn # this causes a cyclic dependency
+#        ProcessingConfiguration:
+#          Enabled: true
+#          Processors:
+#            - Type: Lambda
+#              Parameters:
+#                - ParameterName: LambdaArn
+#                  ParameterValue: !Sub "arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:${self:service}-${self:custom.stage}-StreamProcessor"
+##                  ParameterValue: !GetAtt StreamProcessorLambdaFunction.Arn # this causes a cyclic dependency
 
   DeliveryStreamRole:
     Type: AWS::IAM::Role
