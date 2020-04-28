@@ -244,34 +244,8 @@ resources:
   - ${file(resources/firehose.yml)}
   - ${file(resources/kinesis.yml)}
   - ${file(resources/sqs.yml)}
-  - Resources:
-      OriginBucket:
-        Type: AWS::S3::Bucket
-        Properties:
-          BucketName: traffic-data-origin-bucket
-      DeliveryBucket:
-        Type: AWS::S3::Bucket
-        Properties:
-          BucketName: traffic-data-destination-bucket
-      AnalyticsBucket:
-        Type: AWS::S3::Bucket
-      AnalyticsResultsTable:
-        Type: AWS::DynamoDB::Table
-        Properties:
-          AttributeDefinitions:
-            - AttributeName: "uniqueId"
-              AttributeType: "S"
-            - AttributeName: "outputType_recordTimestamp"
-              AttributeType: "S"
-          KeySchema:
-            - AttributeName: "uniqueId"
-              KeyType: "HASH"
-            - AttributeName: "outputType_recordTimestamp"
-              KeyType: "RANGE"
-          ProvisionedThroughput:
-            ReadCapacityUnits: 5
-            WriteCapacityUnits: 5
-
+  - ${file(resources/s3.yml)}
+  - ${file(resources/dynamodb.yml)}
 
 
   #  Outputs:

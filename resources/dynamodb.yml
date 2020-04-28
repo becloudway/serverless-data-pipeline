@@ -1,0 +1,17 @@
+Resources:
+  AnalyticsResultsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: "uniqueId"
+          AttributeType: "S"
+        - AttributeName: "outputType_recordTimestamp"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "uniqueId"
+          KeyType: "HASH"
+        - AttributeName: "outputType_recordTimestamp"
+          KeyType: "RANGE"
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 20
