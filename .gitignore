@@ -24,3 +24,4 @@ var/
 
 # pytest
 */.pytest_cache/*
+/scripts/events-sent.json
