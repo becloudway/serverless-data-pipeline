@@ -56,7 +56,15 @@ def check_and_update_payload(payload, result):
 
 
 def matches_filter_criteria(payload=None):
-    return True
+    filter_ids = os.environ["FILTER_IDS"]
+    if filter_ids == '*':
+        return True
+    else:
+        filter_ids.replace(" ", "")
+        permitted_ids = filter_ids.split(",")
+        if payload.get("unieke_id") in permitted_ids:
+            return True
+    return False
 
 
 def remove_non_measurements(payload):
