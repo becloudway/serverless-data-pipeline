@@ -1,11 +1,7 @@
 Resources:
   OriginBucket:
     Type: AWS::S3::Bucket
-    Properties:
-      BucketName: traffic-data-origin-bucket
   DeliveryBucket:
     Type: AWS::S3::Bucket
-    Properties:
-      BucketName: traffic-data-destination-bucket
   AnalyticsBucket:
     Type: AWS::S3::Bucket
