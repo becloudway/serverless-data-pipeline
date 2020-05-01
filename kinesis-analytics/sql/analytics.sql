@@ -88,7 +88,7 @@ CREATE OR REPLACE STREAM "SPEED_CHANGE_SQL_STREAM" (
 CREATE OR REPLACE PUMP "SPEED_CHANGE_PUMP" AS
     INSERT INTO "SPEED_CHANGE_SQL_STREAM"
         SELECT STREAM "s"."uniqueId",
-            LAG("s"."speed", 3, -1) OVER CURRENT_WINDOW AS "previousSpeed",
+            LAG("s"."speed", 3, "s"."speed") OVER CURRENT_WINDOW AS "previousSpeed",
             "s"."speed" AS "currentSpeed",
             "s"."bezettingsgraad",
             "s"."recordTimestamp"
