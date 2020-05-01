@@ -5,3 +5,5 @@ Resources:
     Type: AWS::S3::Bucket
   AnalyticsBucket:
     Type: AWS::S3::Bucket
+  AthenaQueryResultsBucket:
+    Type: AWS::S3::Bucket

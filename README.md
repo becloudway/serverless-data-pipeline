@@ -1,5 +1,15 @@
 # Serverless data pipelines
 
+# Measurement locations
+| Description        |  Id           | name - id  |
+| ------------- |:-------------:| -----:|
+| Buitenring Brussel in Wemmel     | 1897 | Complex Wemmel Deel 2 Zuid - 1897 |
+| E17 Gent-Antwerpen tussen Kruibeke en Zwijndrecht      | 957      |   complex Kruibeke (16) - 957 |
+| Binnenring Brussel tussen Groot-Bijgaarden en Zellik | 3159     |    Knooppunt Groot-Bijgaarden West - 3159 |
+| Binnenring Antwerpen tussen Antwerpen-Oost en Borgerhout | 3977     |    R1 RSS Snede kmpt 7,0 - 3977 |
+| Binnenring Brussel tussen Wezembeek-Oppem en Tervuren | 1065     |    R0 kmpt 23,7 dubbele seinbrug - 1065 |
+| E17 Antwerpen-Gent ter hoogte van Gentbrugge | 569      |    viaduct Gentbrugge - 569 |
+
 ## Architecture
 ![architecture.png](img/architecture.png)
 
@@ -83,39 +93,6 @@ Deze gegevens worden door AWV en het verkeerscentrum niet meer gebruikt.
 * Voertuigklasse 4 = Ongelede vrachtwagens = voertuigen metvgeschatte lengte tussen 6,90m en 12,00m bv.:Vrachtwagen of trekker 
 * Voertuigklasse 5 = Gelede vrachtwagens of bussen= voertuigen met geschatte lengte langer dan 12,00m bv.: vrachtwagen+aanhangwagen, trekker+aanhangwagen of bus
 
-## Todo
-* save analytics results to s3
-* implement alerting
-* write system tests
-* deal with -1
-* add batch save
-* account for speed is 252
-* write system tests
-* sharding key is outputType
-* trace all / or multiple filtered amount of locations
-* check if the results are valid
-* add static list with location to match in analytics
-* kinesis analytics app to cloudformation
-* unittest filtering
-* unittest publishing
-* upgrade to python 3.8
 
-* save aggregation in DynamoDB
-* quality check
-* aggregate right
-* save
-* send to kinesis
-* add stream and pump (also towards output) for traffic jam alert
-
-
-Remarks
-* No possibility to do sliding window on other field than rowtime
-* analytics results to kinesis data stream if process in batch lambda
-* get analytics results to s3 via firehose and then build dashboards using athena
-* je kan ook intermediary streams naar destination routen
-* je kan een output stream niet aan twee kinesis streams koppelen
-* the wait is very tedious
-* kinesis analytics trouble when updatin
-* separate your json line per line -> analytics result are oneliners by default
 
 
