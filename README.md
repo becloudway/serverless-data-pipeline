@@ -5,7 +5,7 @@ From this data we can detect traffic jams or the traffic jams that are emerging 
 
 As you can see from the map below the government provides measurements from 4600 locations in flanders every minute.
 
-![all-locations](img/locations-all.png)
+![locations-all](img/locations-all.png)
 
 From these I selected the following six locations to filter on:
 
@@ -19,6 +19,8 @@ From these I selected the following six locations to filter on:
 | Binnenring Antwerpen tussen Antwerpen-Oost en Borgerhout | 3977     |    R1 RSS Snede kmpt 7,0 - 3977 |
 | Binnenring Brussel tussen Wezembeek-Oppem en Tervuren | 1065     |    R0 kmpt 23,7 dubbele seinbrug - 1065 |
 | E17 Antwerpen-Gent ter hoogte van Gentbrugge | 569      |    viaduct Gentbrugge - 569 |
+
+![locations-filtered](img/locations-filtered.png)
 
 We could allow a lot more locations in a later phase of the project.  
 Often there are different measurements for every traffic lane.
@@ -67,6 +69,9 @@ The unique id can be linked back to a static list of measurement locations in Be
 Via this way it is possible to do real time analytics for traffic on all separate measurement locations in Belgium.
 
 ## Instruction
+
+For now all infrastructure is defined as IaC except for the Kinesis Data Analytics application.
+This needs to be added in `yaml` in a later phase.
 
 * set your profile and region in `serverless.yml`
 * tail logs: `serverless logs -f functionName -t` eg: `serverless logs -f PublishTrafficData -t`
