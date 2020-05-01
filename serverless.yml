@@ -41,7 +41,7 @@ functions:
     handler: thundra.handler.wrapper
     module: src/RetrieveXMLTrafficData
     layers:
-      - arn:aws:lambda:eu-west-1:269863060030:layer:thundra-lambda-python-layer:31
+      - arn:aws:lambda:eu-west-1:269863060030:layer:thundra-lambda-python-layer:33
     environment:
       TRAFFIC_DATA_URL: "http://miv.opendata.belfla.be/miv/verkeersdata"
       BUCKET_NAME:
@@ -67,7 +67,7 @@ functions:
     handler: thundra.handler.wrapper
     module: src/TransformTrafficDataToJson
     layers:
-      - arn:aws:lambda:eu-west-1:269863060030:layer:thundra-lambda-python-layer:31
+      - arn:aws:lambda:eu-west-1:269863060030:layer:thundra-lambda-python-layer:33
     environment:
       BUCKET_NAME:
         Ref: OriginBucket
@@ -87,19 +87,19 @@ functions:
               - "/*"
     events:
       - s3:
-        bucket:
-          Ref: OriginBucket
-        event: s3:ObjectCreated:*
-        rules:
-          - prefix: xml/input/
-          - suffix: .xml
-        existing: true
+          bucket:
+            Ref: OriginBucket
+          event: s3:ObjectCreated:*
+          rules:
+            - prefix: xml/input/
+            - suffix: .xml
+          existing: true
 
   PublishTrafficDataFunction:
     handler: thundra.handler.wrapper
     module: src/PublishTrafficData
     layers:
-      - arn:aws:lambda:eu-west-1:269863060030:layer:thundra-lambda-python-layer:31
+      - arn:aws:lambda:eu-west-1:269863060030:layer:thundra-lambda-python-layer:33
     environment:
       BUCKET_NAME:
         Ref: OriginBucket
@@ -125,22 +125,23 @@ functions:
         Resource: { Fn::GetAtt: [ DeliveryStream, Arn ] }
     events:
       - s3:
-        bucket:
-          Ref: OriginBucket
-        event: s3:ObjectCreated:*
-        existing: true
-        rules:
-          - prefix: json/input/
-          - suffix: .json
+          bucket:
+            Ref: OriginBucket
+          event: s3:ObjectCreated:*
+          existing: true
+          rules:
+            - prefix: json/input/
+            - suffix: .json
 
   StreamProcessor:
     handler: thundra.handler.wrapper
     module: src/StreamProcessor
     timeout: 300
     environment:
-      FILTER_IDS: '2341, 235'
+      FILTER_IDS: '1897, 957, 3159, 3977, 1065, 569'
+      thundra_agent_lambda_debug_enable: true
     layers:
-      - arn:aws:lambda:eu-west-1:269863060030:layer:thundra-lambda-python-layer:31
+        - arn:aws:lambda:eu-west-1:269863060030:layer:thundra-lambda-python-layer:33
     iamRoleStatementsInherit: true
     iamRoleStatements:
       - Effect: "Allow"
@@ -157,7 +158,7 @@ functions:
     environment:
       REGION: eu-west-1
     layers:
-      - arn:aws:lambda:eu-west-1:269863060030:layer:thundra-lambda-python-layer:31
+      - arn:aws:lambda:eu-west-1:269863060030:layer:thundra-lambda-python-layer:33
     iamRoleStatementsInherit: true
     iamRoleStatements:
       - Effect: "Allow"
@@ -197,7 +198,7 @@ functions:
     timeout: 10
     reservedConcurrency: 1
     layers:
-      - arn:aws:lambda:eu-west-1:269863060030:layer:thundra-lambda-python-layer:31
+      - arn:aws:lambda:eu-west-1:269863060030:layer:thundra-lambda-python-layer:33
     environment:
       TABLE_NAME: !Ref AnalyticsResultsTable
     iamRoleStatementsInherit: true

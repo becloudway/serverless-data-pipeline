@@ -17,17 +17,16 @@ def handle(event, context):
             try:
                 payload = base64.b64decode(record['kinesis']['data'])
                 data = json.loads(payload)
-                print(json.dumps(data))
-                print('Handling item')
                 item = None
                 if data.get('outputType') == 'SPEED_DIFFERENTIAL':
-                    print('type is speed')
+                    print('Type is speed')
                     item = create_speed_item(data)
                 elif data.get('outputType') == 'TRAFFIC_JAM':
-                    print('type is jam')
+                    print('Type is jam')
                     item = create_traffic_jam_item(data)
                 sort_key = create_sort_key(item)
                 item["outputType_recordTimestamp"] = sort_key
+                print(f"Will save item: {item}")
                 batch.put_item(Item=item)
             except Exception as e:
                 print(e)
@@ -46,7 +45,6 @@ def create_speed_item(data_item):
         'speedDiffIndicator': data_item.get('speedDiffIndicator'),
         'bezettingsgraad': data_item.get('bezettingsgraad'),
     }
-    print('Returning speed item {}'.format(json.dumps(speed_item)))
     return speed_item
 
 
@@ -58,7 +56,6 @@ def create_traffic_jam_item(data_item):
         'currentSpeed': data_item.get('currentSpeed'),
         'trafficJamIndicator': data_item.get('trafficJamIndicator')
     }
-    print('Returning jam item {}'.format(json.dumps(traffic_jam_item)))
     return traffic_jam_item
 
 

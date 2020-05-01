@@ -1,7 +1,17 @@
 # Serverless data pipelines
 
-# Measurement locations
-| Description        |  Id           | name - id  |
+In this project we want to analyze traffic data in flanders in realtime.  
+From this data we can detect traffic jams or the traffic jams that are emerging / dissolving.
+
+As you can see from the map below the government provides measurements from 4600 locations in flanders every minute.
+
+![all-locations](img/locations-all.png)
+
+From these I selected the following six locations to filter on:
+
+**Measurement locations** 
+
+| Description        |  LocationId           | name - id  |
 | ------------- |:-------------:| -----:|
 | Buitenring Brussel in Wemmel     | 1897 | Complex Wemmel Deel 2 Zuid - 1897 |
 | E17 Gent-Antwerpen tussen Kruibeke en Zwijndrecht      | 957      |   complex Kruibeke (16) - 957 |
@@ -9,6 +19,10 @@
 | Binnenring Antwerpen tussen Antwerpen-Oost en Borgerhout | 3977     |    R1 RSS Snede kmpt 7,0 - 3977 |
 | Binnenring Brussel tussen Wezembeek-Oppem en Tervuren | 1065     |    R0 kmpt 23,7 dubbele seinbrug - 1065 |
 | E17 Antwerpen-Gent ter hoogte van Gentbrugge | 569      |    viaduct Gentbrugge - 569 |
+
+We could allow a lot more locations in a later phase of the project.  
+Often there are different measurements for every traffic lane.
+If this is the case I used the data from the lane on the right side of the road.
 
 ## Architecture
 ![architecture.png](img/architecture.png)
