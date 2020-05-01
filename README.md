@@ -1,4 +1,4 @@
-# Serverless data pipelines
+# Serverless data pipelines - Flanders Traffic analysis
 
 In this project we want to analyze traffic data in flanders in realtime.  
 From this data we can detect traffic jams or the traffic jams that are emerging / dissolving.
