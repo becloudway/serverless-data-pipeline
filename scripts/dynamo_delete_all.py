@@ -1,6 +1,6 @@
 import boto3
 
-TABLE_NAME="sls-data-pipelines-dev-AnalyticsResultsTable-1DASMYSD0S9IR"
+TABLE_NAME="sls-data-pipelines-dev-AnalyticsResultsTable-1C3GH4VT1IX3O"
 
 dynamodb = boto3.resource('dynamodb', region_name='eu-west-1')
 table = dynamodb.Table(TABLE_NAME)

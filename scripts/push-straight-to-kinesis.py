@@ -5,7 +5,7 @@ import os
 
 firehose_client = boto3.client('firehose')
 
-KINESIS_FIREHOSE_NAME = 'sls-data-pipelines-dev-DeliveryStream-ME98UYAFP4R0'
+KINESIS_FIREHOSE_NAME = 'sls-data-pipelines-dev-DeliveryStream-16IMVP3IZ44PI'
 
 car_speeds = [120] * 10 \
              + list(range(120, 100, -5)) \
@@ -69,7 +69,9 @@ def save_event_that_was_sent(event):
 
 
 if __name__ == "__main__":
-    os.remove('events-sent.json')
+    events_sent_file_path = 'events-sent.json'
+    if os.path.exists(events_sent_file_path):
+        os.remove(events_sent_file_path)
     meetpunt = None
     with open('event.json', 'r') as f:
         meetpunt = f.read()
