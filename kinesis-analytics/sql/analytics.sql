@@ -29,7 +29,7 @@ CREATE OR REPLACE PUMP "TRAFFIC_JAM_SQL_PUMP" AS
             "speed",
             CASE
                 WHEN "speed" BETWEEN 0 AND 40 THEN 1
-                WHEN "speed" BETWEEN 40 AND 200 THEN 0
+                WHEN "speed" BETWEEN 41 AND 200 THEN 0 -- sql between is inclusive!
                 ELSE -1
             END AS "trafficJamIndicator",
             UNIX_TIMESTAMP("recordTimestamp") AS "recordTimestamp"
