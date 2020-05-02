@@ -1,11 +1,7 @@
 import json
 import os
 
-from dataclasses import dataclass
-
-import pytest
-
-from src.StreamProcessor import handler
+from integration_tests import handler
 
 
 def test_filter_criteria_returns_true_when_id_in_filtered_list():

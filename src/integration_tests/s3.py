@@ -26,7 +26,7 @@ def get_from_s3(key, bucket):
             return obj.get()['Body'].read().decode('utf-8')
         except s3_resource.meta.client.exceptions.NoSuchKey:
             tries += 1
-            print(f"No such key in bucket, tries: {tries}")
+            print(f"No such key in bucket, tries: {tries}, retrying..")
             if tries < max_tries:
                 time.sleep(1)
                 continue
