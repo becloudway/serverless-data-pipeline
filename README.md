@@ -7,6 +7,8 @@ As you can see from the map below the government provides measurements from 4600
 
 ![locations-all](img/locations-all.png)
 
+*created with [http://geojson.io/](http://geojson.io/)
+
 From these I selected the following six locations to filter on:
 
 **Measurement locations** 

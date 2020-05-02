@@ -140,6 +140,8 @@ functions:
     environment:
       FILTER_IDS: '1897, 957, 3159, 3977, 1065, 569'
       thundra_agent_lambda_debug_enable: true
+      thundra_agent_lambda_trace_response_skip: true
+      thundra_agent_lambda_trace_request_skip: true
     layers:
         - arn:aws:lambda:eu-west-1:269863060030:layer:thundra-lambda-python-layer:33
     iamRoleStatementsInherit: true
@@ -252,3 +254,6 @@ resources:
       DynamoDBAnalyticsResultTableName:
         Description: "Single table that holds the analytics results"
         Value: !Ref AnalyticsResultsTable
+      OriginBucketName:
+        Description: "Bucket where input files are placed"
+        Value: !Ref OriginBucket
