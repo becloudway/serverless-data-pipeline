@@ -114,6 +114,11 @@ Deze gegevens worden door AWV en het verkeerscentrum niet meer gebruikt.
 * Voertuigklasse 4 = Ongelede vrachtwagens = voertuigen metvgeschatte lengte tussen 6,90m en 12,00m bv.:Vrachtwagen of trekker 
 * Voertuigklasse 5 = Gelede vrachtwagens of bussen= voertuigen met geschatte lengte langer dan 12,00m bv.: vrachtwagen+aanhangwagen, trekker+aanhangwagen of bus
 
+## Integration tests
 
-
+Runt the integration tests on a separate environment
+```bash
+cd src/integration_tests
+pytest tests.py 
+```
 

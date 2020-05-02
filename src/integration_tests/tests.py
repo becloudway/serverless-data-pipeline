@@ -48,7 +48,6 @@ def test_when_events_are_put_on_firehose_that_match_filter_criteria_then_analyti
 
     data = scan_table(DYNAMODB_TABLE_NAME)
 
-    print(type(data))
     print(data)
     print(json.dumps(parse_dynamo_item_to_dict(data[0])))
 

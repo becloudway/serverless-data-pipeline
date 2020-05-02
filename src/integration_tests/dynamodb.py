@@ -9,12 +9,12 @@ def get_table(table_name):
     return dynamodb.Table(table_name)
 
 
-def scan_table(table_name, input=None):
+def scan_table(table_name, input={}):
     table = get_table(table_name)
-    response = table.scan()
+    response = table.scan(ConsistentRead=True, **input)
     data = response['Items']
     while 'LastEvaluatedKey' in response:
-        response = table.scan(ExclusiveStartKey=response['LastEvaluatedKey'], **input)
+        response = table.scan(ExclusiveStartKey=response['LastEvaluatedKey'], ConsistentRead=True, **input)
         data.extend(response['Items'])
     return data
 
@@ -27,7 +27,7 @@ def delete_all_items(table_name):
     with table.batch_writer() as batch:
         for item in items:
             if count % 50 == 0:
-                print("Records deleted untill now: {}".format(count))
+                print("Records deleted until now: {}".format(count))
             key = {
                 'uniqueId': item['uniqueId'],
                 'outputType_recordTimestamp': item['outputType_recordTimestamp']
