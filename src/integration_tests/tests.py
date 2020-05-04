@@ -7,7 +7,7 @@ from pytest import fixture
 
 INPUT_BUCKET = 'sls-data-pipelines-dev-originbucket-1ayfh2rded747'
 KINESIS_FIREHOSE_STREAM_NAME = 'sls-data-pipelines-dev-DeliveryStream-16IMVP3IZ44PI'
-DYNAMODB_TABLE_NAME = 'sls-data-pipelines-dev-AnalyticsResultsTable-1C3GH4VT1IX3O'
+DYNAMODB_TABLE_NAME = 'sls-data-pipelines-dev-RealTimeAnalyticsPerPointTable-SA8QAYI0NIZS'
 
 RESOURCES_PATH = './test_resources'
 S3_XML_PREFIX = 'xml/input/'
@@ -48,7 +48,7 @@ def test_when_events_are_put_on_firehose_that_match_filter_criteria_then_analyti
     print(analytics_data)
     print(json.dumps(parse_dynamo_item_to_dict(analytics_data[0])))
 
-    assert len(analytics_data) == 2*len(events) # 2 types of aggregations
+    assert len(analytics_data) == 2
 
 
 def test_when_events_go_through_analytics_pipeline_the_correct_aggregations_are_done(db_setup):
@@ -99,6 +99,7 @@ def push_traffic_events_to_stream():
         put_record(KINESIS_FIREHOSE_STREAM_NAME, updated_event)
         time.sleep(1)
     return events
+
 
 
 

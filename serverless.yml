@@ -194,15 +194,15 @@ functions:
               arn: !GetAtt TrafficAlertsDeadQueue.Arn
               type: sqs
 
-  SaveAnalyticsResults:
+  StoreAnalyticsResultsPerPoint:
     handler: thundra.handler.wrapper
-    module: src/SaveAnalyticsResults
+    module: src/StoreAnalyticsResultsPerPoint
     timeout: 10
     reservedConcurrency: 1
     layers:
       - arn:aws:lambda:eu-west-1:269863060030:layer:thundra-lambda-python-layer:33
     environment:
-      TABLE_NAME: !Ref AnalyticsResultsTable
+      TABLE_NAME: !Ref RealTimeAnalyticsPerPointTable
     iamRoleStatementsInherit: true
     iamRoleStatements:
       - Effect: "Allow"
@@ -219,7 +219,7 @@ functions:
           - "dynamodb:Delete*"
           - "dynamodb:Update*"
           - "dynamodb:PutItem"
-        Resource: !GetAtt AnalyticsResultsTable.Arn
+        Resource: !GetAtt RealTimeAnalyticsPerPointTable.Arn
       - Effect: "Allow"
         Action:
           - "sqs:SendMessage"
@@ -238,6 +238,57 @@ functions:
             onFailure:
               arn: !GetAtt SaveAnalyticsDeadQueue.Arn
               type: sqs
+  AlertSaver:
+    handler: thundra.handler.wrapper
+    module: src/AlertSaver
+    timeout: 10
+    reservedConcurrency: 1
+    layers:
+      - arn:aws:lambda:eu-west-1:269863060030:layer:thundra-lambda-python-layer:33
+    environment:
+      TABLE_NAME: !Ref TrafficJamAlertsTable
+    iamRoleStatementsInherit: true
+    iamRoleStatements:
+      - Effect: "Allow"
+        Action:
+          - "dynamodb:DescribeStream"
+          - "dynamodb:DescribeTable"
+          - "dynamodb:BatchWrite*"
+          - "dynamodb:Delete*"
+          - "dynamodb:Update*"
+          - "dynamodb:PutItem"
+        Resource: !GetAtt RealTimeAnalyticsPerPointTable.Arn
+      - Effect: "Allow"
+        Action:
+          - "dynamodb:DescribeStream"
+          - "dynamodb:DescribeTable"
+          - "dynamodb:BatchWrite*"
+          - "dynamodb:Delete*"
+          - "dynamodb:Update*"
+          - "dynamodb:PutItem"
+        Resource: !GetAtt TrafficJamAlertsTable.Arn
+    events:
+      - stream:
+          type: dynamodb
+          arn:
+            Fn::GetAtt: [RealTimeAnalyticsPerPointTable, StreamArn]
+          maximumRetryAttempts: 2
+  AlertSender:
+    handler: thundra.handler.wrapper
+    module: src/AlertSender
+    timeout: 10
+    reservedConcurrency: 1
+    layers:
+      - arn:aws:lambda:eu-west-1:269863060030:layer:thundra-lambda-python-layer:33
+    environment:
+      TABLE_NAME: !Ref TrafficJamAlertsTable
+    iamRoleStatementsInherit: true
+    events:
+      - stream:
+          type: dynamodb
+          arn:
+            Fn::GetAtt: [TrafficJamAlertsTable, StreamArn]
+          maximumRetryAttempts: 2
 
 
 resources:
@@ -251,9 +302,9 @@ resources:
       DeliveryStreamName:
         Description: "Name of the firehose over which all traffic events flow"
         Value: !Ref DeliveryStream
-      DynamoDBAnalyticsResultTableName:
+      RealTimeAnalyticsPerPointTableName:
         Description: "Single table that holds the analytics results"
-        Value: !Ref AnalyticsResultsTable
+        Value: !Ref RealTimeAnalyticsPerPointTable
       OriginBucketName:
         Description: "Bucket where input files are placed"
         Value: !Ref OriginBucket

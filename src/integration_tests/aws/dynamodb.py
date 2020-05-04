@@ -30,7 +30,7 @@ def delete_all_items(table_name):
                 print("Records deleted until now: {}".format(count))
             key = {
                 'uniqueId': item['uniqueId'],
-                'outputType_recordTimestamp': item['outputType_recordTimestamp']
+                'outputType': item['outputType']
             }
             batch.delete_item(Key=key)
             count = count + 1
@@ -41,7 +41,7 @@ def create_scan_input(table_name):
     return {
         "TableName": table_name,
         "ProjectionExpression": "#a97a0,#a97a1",
-        "ExpressionAttributeNames": {"#a97a0":"uniqueId", "#a97a1":"outputType_recordTimestamp"}
+        "ExpressionAttributeNames": {"#a97a0":"uniqueId", "#a97a1":"outputType"}
     }
 
 
