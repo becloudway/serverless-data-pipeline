@@ -148,12 +148,13 @@ CREATE OR REPLACE STREAM "OUTPUT_STREAM" (
     "speedDiffIndicator" INTEGER,
     "trafficJamIndicator" INTEGER,
     "bezettingsgraad" INTEGER,
-    "recordTimestamp" BIGINT);
+    "recordTimestamp" BIGINT,
+    "location" VARCHAR(128));
 
 
 -- Publish speed data to output stream
 CREATE OR REPLACE PUMP "SPEED_DIFF_TO_OUTPUT_PUMP" AS
-    INSERT INTO "OUTPUT_STREAM" ("outputType", "uniqueId", "previousSpeed", "currentSpeed", "speedDiffIndicator", "bezettingsgraad", "recordTimestamp")
+    INSERT INTO "OUTPUT_STREAM" ("outputType", "uniqueId", "previousSpeed", "currentSpeed", "speedDiffIndicator", "bezettingsgraad", "recordTimestamp", "location")
         SELECT STREAM
         'SPEED_DIFFERENTIAL',
         "sdi"."uniqueId",
@@ -161,20 +162,26 @@ CREATE OR REPLACE PUMP "SPEED_DIFF_TO_OUTPUT_PUMP" AS
         "sdi"."currentSpeed",
         "sdi"."speedDiffIndicator",
         "sdi"."bezettingsgraad",
-        "sdi"."recordTimestamp"
-        FROM "SPEED_DIFF_INDICATOR_SQL_STREAM" AS "sdi";
+        "sdi"."recordTimestamp",
+        "ml"."locatie"
+        FROM "SPEED_DIFF_INDICATOR_SQL_STREAM" AS "sdi" LEFT JOIN "measurementLocations" as "ml"
+        ON "sdi"."uniqueId" = "ml"."id";
 
 
 -- Publish traffic jam data to output stream
 CREATE OR REPLACE PUMP "TRAFFIC_JAM_TO_OUTPUT_PUMP" AS
-    INSERT INTO "OUTPUT_STREAM" ("outputType", "uniqueId", "currentSpeed", "trafficJamIndicator", "recordTimestamp")
+    INSERT INTO "OUTPUT_STREAM" ("outputType", "uniqueId", "currentSpeed", "trafficJamIndicator", "recordTimestamp", "location")
         SELECT STREAM
         'TRAFFIC_JAM',
         "tjs"."uniqueId",
         "tjs"."speed",
         "tjs"."trafficJamIndicator",
-        "tjs"."recordTimestamp"
-        FROM "TRAFFIC_JAM_SQL_STREAM" AS "tjs";
+        "tjs"."recordTimestamp",
+        "ml"."locatie"
+        FROM "TRAFFIC_JAM_SQL_STREAM" AS "tjs" LEFT JOIN "measurementLocations" as "ml"
+        ON "tjs"."uniqueId" = "ml"."id";
+
+   
 
 
 --Create output stream 2
@@ -213,3 +220,6 @@ CREATE OR REPLACE PUMP "OUTPUT_STREAM_2_TRAFFIC_JAM_PUMP" AS
         "tjs"."trafficJamIndicator",
         "tjs"."recordTimestamp"
         FROM "TRAFFIC_JAM_SQL_STREAM" AS "tjs";
+        
+        
+

@@ -35,13 +35,14 @@ def save_speed_item(data_item):
                 'uniqueId': str(data_item.get('uniqueId')),
                 'outputType': str(data_item.get('outputType'))
             },
-            UpdateExpression="set recordTimestamp = :r, currentSpeed=:c, previousSpeed=:p, speedDiffIndicator=:sd, bezettingsgraad=:bg, outputType_recordTimestamp=:otrts",
+            UpdateExpression="set recordTimestamp = :r, currentSpeed=:c, previousSpeed=:p, speedDiffIndicator=:sd, bezettingsgraad=:bg, outputType_recordTimestamp=:otrts, loc=:l",
             ExpressionAttributeValues={
                 ':r':  str(data_item.get('recordTimestamp')),
                 ':c': data_item.get('currentSpeed'),
                 ':p': data_item.get('previousSpeed'),
                 ':sd': data_item.get('speedDiffIndicator'),
                 ':bg': data_item.get('bezettingsgraad'),
+                ':l': data_item.get('location'),
                 ':otrts': combo_key
             },
             ConditionExpression='speedDiffIndicator <> :sd')
@@ -57,11 +58,12 @@ def save_traffic_jam_item(data_item):
                 'uniqueId': str(data_item.get('uniqueId')),
                 'outputType': str(data_item.get('outputType'))
             },
-            UpdateExpression="set recordTimestamp = :r, currentSpeed=:c, trafficJamIndicator=:tji, outputType_recordTimestamp=:otrts",
+            UpdateExpression="set recordTimestamp = :r, currentSpeed=:c, trafficJamIndicator=:tji, outputType_recordTimestamp=:otrts, loc=:l",
             ExpressionAttributeValues={
                 ':r':  str(data_item.get('recordTimestamp')),
                 ':c': data_item.get('currentSpeed'),
                 ':tji': data_item.get('trafficJamIndicator'),
+                ':l': data_item.get('location'),
                 ':otrts': combo_key
             },
             ConditionExpression='trafficJamIndicator <> :tji')
