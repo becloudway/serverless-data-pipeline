@@ -53,6 +53,8 @@ def check_and_update_payload(payload, result):
 
 
 def matches_filter_criteria(payload=None):
+    if payload.get(traffic_prefixes.get("speed_harmonic_prefix") + "_" + klasses[1]) == '252':
+        return False
     filter_ids = os.environ["FILTER_IDS"]
     if filter_ids == '*':
         return True

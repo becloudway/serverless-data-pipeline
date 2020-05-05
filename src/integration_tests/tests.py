@@ -91,6 +91,19 @@ def test_speed_diff_accelerating_is_detected(db_setup):
     check_speed_analytics_for_unique_id(unique_id, analytics_items_as_dict, 1)
 
 
+def test_can_measurements_without_speed_are_ignored(db_setup):
+    unique_id = FILTERED_UNIQUE_IDS[1]
+    events = create_list_of_events(unique_id, ['120', '120', '252', '252'])
+    push_traffic_events_to_stream(events)
+
+    time.sleep(90)  # give time for firehose and analytics app to process all events
+
+    analytics_data = scan_table(ANALYTICS_PER_POINT_DYNAMODB_TABLE_NAME)
+
+    analytics_items_as_dict = [parse_dynamo_item_to_dict(analytics_item) for analytics_item in analytics_data]
+    check_speed_analytics_for_unique_id(unique_id, analytics_items_as_dict, 0)
+
+
 def check_traffic_jam_analytics_for_unique_id(unique_id, events, expected_status):
     print(events)
     traffic_jam_events = [e for e in events if e['outputType'] == 'TRAFFIC_JAM']

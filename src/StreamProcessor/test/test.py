@@ -1,7 +1,7 @@
 import json
 import os
 
-from integration_tests import handler
+from src.StreamProcessor import handler
 
 
 def test_filter_criteria_returns_true_when_id_in_filtered_list():
@@ -35,6 +35,18 @@ def test_filter_criteria_returns_true_when_no_restrictions():
     payload["unieke_id"] = "70"
 
     assert handler.matches_filter_criteria(payload) is True, "Test filter criteria failed"
+
+
+def test_filter_criteria_returns_false_when_no_measurement():
+    os.environ["FILTER_IDS"] = "*"
+    payload = None
+
+    with open('./payload.json', 'r') as f:
+        payload = json.loads(f.read())
+    payload["unieke_id"] = "70"
+    payload["voertuigsnelheid_harmonisch_klasse2"] = "252"
+
+    assert handler.matches_filter_criteria(payload) is False, "Test filter criteria failed"
 
 
 def test_remove_non_measurements():
