@@ -12,11 +12,11 @@ def handle(event, context):
     print('Successfully processed %s records.' % str(len(event['Records'])))
 
     for record in event['Records']:
-        unique_id = record["dynamodb"]["NewImage"]["uniqueId"]['S']
-        alert_indicator = record["dynamodb"]["NewImage"]["trafficJamIndicator"]['N']
-
-        save_traffic_jam_alert_item(unique_id, alert_indicator)
-
+        print(record["dynamodb"]["NewImage"])
+        if 'trafficJamIndicator' in record["dynamodb"]["NewImage"]:
+            unique_id = record["dynamodb"]["NewImage"]["uniqueId"]['S']
+            alert_indicator = record["dynamodb"]["NewImage"]["trafficJamIndicator"]['N']
+            save_traffic_jam_alert_item(unique_id, alert_indicator)
     print("END----------------------------------------------END")
 
 
