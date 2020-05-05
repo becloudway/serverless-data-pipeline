@@ -21,6 +21,8 @@ From these I selected the following six locations to filter on:
 | Binnenring Antwerpen tussen Antwerpen-Oost en Borgerhout | 3977     |    R1 RSS Snede kmpt 7,0 - 3977 |
 | Binnenring Brussel tussen Wezembeek-Oppem en Tervuren | 1065     |    R0 kmpt 23,7 dubbele seinbrug - 1065 |
 | E17 Antwerpen-Gent ter hoogte van Gentbrugge | 569      |    viaduct Gentbrugge - 569 |
+| E314 Wilsele richting Leuven | 1924      |   Complex nr 20 Wilsele De Vunt-1924 |
+| E314 Wilsele richting Aarschot | 1926     |   Complex nr 20 Wilsele De Vunt-1926 |
 
 ![locations-filtered](img/locations-filtered.png)
 
