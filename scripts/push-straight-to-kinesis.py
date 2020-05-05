@@ -5,7 +5,7 @@ import os
 
 firehose_client = boto3.client('firehose')
 
-KINESIS_FIREHOSE_NAME = 'sls-data-pipelines-dev-DeliveryStream-16IMVP3IZ44PI'
+KINESIS_FIREHOSE_NAME = 'sls-data-pipelines-dev-DeliveryStream-Q7X2Y3M0YUA8'
 
 car_speeds = [120] * 10 \
              + list(range(120, 100, -5)) \

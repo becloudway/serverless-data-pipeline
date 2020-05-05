@@ -121,4 +121,31 @@ Runt the integration tests on a separate environment
 cd src/integration_tests
 pytest tests.py 
 ```
+## Meetpunten vlaanderen test
+```xml
+<meetpunt unieke_id="2341">
+<beschrijvende_id>H192L00</beschrijvende_id>
+<volledige_naam>E313 Spitsstrook kmpt. 0,4</volledige_naam>
+<Ident_8>R0010411</Ident_8>
+<lve_nr>365</lve_nr>
+<Kmp_Rsys>1,003</Kmp_Rsys>
+<Rijstrook>R08</Rijstrook>
+<X_coord_EPSG_31370>155885,7969</X_coord_EPSG_31370>
+<Y_coord_EPSG_31370>211772,4354</Y_coord_EPSG_31370>
+<lengtegraad_EPSG_4326>4,452993707</lengtegraad_EPSG_4326>
+<breedtegraad_EPSG_4326>51,21587307</breedtegraad_EPSG_4326>
+</meetpunt>
 
+<meetpunt unieke_id="235">
+<beschrijvende_id>S311L10</beschrijvende_id>
+<volledige_naam>Knooppunt Antwerpen Oost R1-E313</volledige_naam>
+<Ident_8>R0010471</Ident_8>
+<lve_nr>64</lve_nr>
+<Kmp_Rsys>0,025</Kmp_Rsys>
+<Rijstrook>R10</Rijstrook>
+<X_coord_EPSG_31370>155834,4388</X_coord_EPSG_31370>
+<Y_coord_EPSG_31370>211883,1586</Y_coord_EPSG_31370>
+<lengtegraad_EPSG_4326>4,452260481</lengtegraad_EPSG_4326>
+<breedtegraad_EPSG_4326>51,21686882</breedtegraad_EPSG_4326>
+</meetpunt>
+```

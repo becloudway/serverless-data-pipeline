@@ -6,10 +6,10 @@ import time
 import json
 from pytest import fixture
 
-INPUT_BUCKET = 'sls-data-pipelines-dev-originbucket-1ayfh2rded747'
-KINESIS_FIREHOSE_STREAM_NAME = 'sls-data-pipelines-dev-DeliveryStream-16IMVP3IZ44PI'
-ANALYTICS_PER_POINT_DYNAMODB_TABLE_NAME = 'sls-data-pipelines-dev-RealTimeAnalyticsPerPointTable-SA8QAYI0NIZS'
-TRAFFIC_JAM_ALERTS_DYNAMODB_TABLE_NAME = 'sls-data-pipelines-dev-TrafficJamAlertsTable-TTQV18GUX745'
+INPUT_BUCKET = 'sls-data-pipelines-dev-originbucket-5hxa5803ppha'
+KINESIS_FIREHOSE_STREAM_NAME = 'sls-data-pipelines-dev-DeliveryStream-Q7X2Y3M0YUA8'
+ANALYTICS_PER_POINT_DYNAMODB_TABLE_NAME = 'sls-data-pipelines-dev-RealTimeAnalyticsPerPointTable-167B4GF1RTPIP'
+TRAFFIC_JAM_ALERTS_DYNAMODB_TABLE_NAME = 'sls-data-pipelines-dev-TrafficJamAlertsTable-35XW6S30O49K'
 
 RESOURCES_PATH = './test_resources'
 S3_XML_PREFIX = 'xml/input/'
@@ -43,7 +43,7 @@ def test_when_xml_is_put_on_bucket_it_is_correctly_converted_to_json():
 
 
 def test_when_events_are_put_on_firehose_that_match_filter_criteria_then_analytics_results_arrive_in_analytics_per_point_table(db_setup):
-    events = push_pre_configured_traffic_events_to_stream()
+    push_pre_configured_traffic_events_to_stream()
 
     time.sleep(90)  # give time for firehose and analytics app to process all events
 

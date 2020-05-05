@@ -12,6 +12,8 @@ def handle(event, context):
     print('Successfully processed %s records.' % str(len(event['Records'])))
 
     for record in event['Records']:
+        if not record["dynamodb"].get("NewImage"):
+            continue
         print(record["dynamodb"]["NewImage"])
         if 'trafficJamIndicator' in record["dynamodb"]["NewImage"]:
             unique_id = record["dynamodb"]["NewImage"]["uniqueId"]['S']
