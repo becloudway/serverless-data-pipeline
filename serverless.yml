@@ -22,6 +22,13 @@ provider:
   runtime: python3.7
   region: eu-west-1
   profile: cloudway-nick
+  httpApi:
+    cors:
+      allowedOrigins:
+        - '*'
+      allowedMethods:
+        - GET
+        - OPTIONS
   reservedConcurrency: 1
   memorySize: 512
   versionFunctions: false
@@ -138,7 +145,7 @@ functions:
     module: src/StreamProcessor
     timeout: 300
     environment:
-      FILTER_IDS: '1897, 957, 3159, 3977, 1065, 569, 1924, 1926'
+      FILTER_IDS: '1897, 957, 3159, 3977, 1065, 575, 3659, 1831'
     layers:
       - arn:aws:lambda:eu-west-1:114300393969:layer:lumigo-python-tracer:115
     iamRoleStatementsInherit: true
@@ -286,7 +293,54 @@ functions:
           arn:
             Fn::GetAtt: [TrafficJamAlertsTable, StreamArn]
           maximumRetryAttempts: 2
-
+  CurrentSituation:
+    handler: /opt/python/lumigo_tracer._handler
+    module: src/CurrentSituation
+    timeout: 10
+    reservedConcurrency: 1
+    layers:
+      - arn:aws:lambda:eu-west-1:114300393969:layer:lumigo-python-tracer:115
+    environment:
+      TABLE_NAME: !Ref RealTimeAnalyticsPerPointTable
+    iamRoleStatementsInherit: true
+    iamRoleStatements:
+      - Effect: "Allow"
+        Action:
+          - "dynamodb:BatchGet*"
+          - "dynamodb:DescribeStream"
+          - "dynamodb:DescribeTable"
+          - "dynamodb:Get*"
+          - "dynamodb:Query"
+          - "dynamodb:Scan"
+        Resource: !GetAtt RealTimeAnalyticsPerPointTable.Arn
+    events:
+      - httpApi:
+          method: GET
+          path: /traffic
+  CurrentAlerts:
+    handler: /opt/python/lumigo_tracer._handler
+    module: src/CurrentAlerts
+    timeout: 10
+    reservedConcurrency: 1
+    layers:
+      - arn:aws:lambda:eu-west-1:114300393969:layer:lumigo-python-tracer:115
+    environment:
+      TABLE_NAME: !Ref TrafficJamAlertsTable
+    iamRoleStatementsInherit: true
+    iamRoleStatements:
+      - Effect: "Allow"
+        Action:
+          - "dynamodb:BatchGet*"
+          - "dynamodb:DescribeStream"
+          - "dynamodb:DescribeTable"
+          - "dynamodb:Get*"
+          - "dynamodb:Query"
+          - "dynamodb:Scan"
+        Resource: !GetAtt TrafficJamAlertsTable.Arn
+    events:
+      - httpApi:
+          method: GET
+          path: /alerts
 
 resources:
   - ${file(resources/firehose.yml)}

@@ -20,9 +20,10 @@ From these I selected the following six locations to filter on:
 | Binnenring Brussel tussen Groot-Bijgaarden en Zellik | 3159     |    Knooppunt Groot-Bijgaarden West - 3159 |
 | Binnenring Antwerpen tussen Antwerpen-Oost en Borgerhout | 3977     |    R1 RSS Snede kmpt 7,0 - 3977 |
 | Binnenring Brussel tussen Wezembeek-Oppem en Tervuren | 1065     |    R0 kmpt 23,7 dubbele seinbrug - 1065 |
-| E17 Antwerpen-Gent ter hoogte van Gentbrugge | 569      |    viaduct Gentbrugge - 569 |
-| E314 Wilsele richting Leuven | 1924      |   Complex nr 20 Wilsele De Vunt-1924 |
-| E314 Wilsele richting Aarschot | 1926     |   Complex nr 20 Wilsele De Vunt-1926 |
+| E17 Antwerpen-Gent ter hoogte van Gentbrugge | 575      |    viaduct Gentbrugge - 575 |
+| E17 Gent-Antwerpen Zwijndrecht richting Antwerpen | 3659     |   Complex nr 17 Zwijndrecht Oost-3659 |
+| N16 Sint-Niklaas-Mechelen in Temse | 1831     |   Temsebrug-1831 |
+
 
 ![locations-filtered](img/locations-filtered.png)
 
