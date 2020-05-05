@@ -305,6 +305,12 @@ resources:
       RealTimeAnalyticsPerPointTableName:
         Description: "Single table that holds the analytics results"
         Value: !Ref RealTimeAnalyticsPerPointTable
+      TrafficJamAlertsTableName:
+        Description: "Table that holds the traffic jam alerts"
+        Value: !Ref TrafficJamAlertsTable
       OriginBucketName:
         Description: "Bucket where input files are placed"
         Value: !Ref OriginBucket
+      ResourcesBucketName:
+        Description: "Bucket where config files are placed"
+        Value: !Ref ResourcesBucket

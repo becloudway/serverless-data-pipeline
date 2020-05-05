@@ -1,13 +1,14 @@
 from aws.s3 import store_data, get_from_s3
 from aws.firehose import put_record
-from aws.dynamodb import scan_table, parse_dynamo_item_to_dict, delete_all_items
+from aws.dynamodb import scan_table, parse_dynamo_item_to_dict, delete_all_items_for_key_uniqueId_outputType, delete_all_items_for_key_uniqueId
 import time
 import json
 from pytest import fixture
 
 INPUT_BUCKET = 'sls-data-pipelines-dev-originbucket-1ayfh2rded747'
 KINESIS_FIREHOSE_STREAM_NAME = 'sls-data-pipelines-dev-DeliveryStream-16IMVP3IZ44PI'
-DYNAMODB_TABLE_NAME = 'sls-data-pipelines-dev-RealTimeAnalyticsPerPointTable-SA8QAYI0NIZS'
+ANALYTICS_PER_POINT_DYNAMODB_TABLE_NAME = 'sls-data-pipelines-dev-RealTimeAnalyticsPerPointTable-SA8QAYI0NIZS'
+TRAFFIC_JAM_ALERTS_DYNAMODB_TABLE_NAME = 'sls-data-pipelines-dev-TrafficJamAlertsTable-TTQV18GUX745'
 
 RESOURCES_PATH = './test_resources'
 S3_XML_PREFIX = 'xml/input/'
@@ -16,7 +17,8 @@ S3_JSON_PREFIX = 'json/input/'
 
 @fixture()
 def db_setup():
-    delete_all_items(DYNAMODB_TABLE_NAME)
+    delete_all_items_for_key_uniqueId_outputType(ANALYTICS_PER_POINT_DYNAMODB_TABLE_NAME)
+    delete_all_items_for_key_uniqueId(TRAFFIC_JAM_ALERTS_DYNAMODB_TABLE_NAME)
 
 
 def test_when_xml_is_put_on_bucket_it_is_correctly_converted_to_json():
@@ -43,7 +45,7 @@ def test_when_events_are_put_on_firehose_that_match_filter_criteria_then_analyti
 
     time.sleep(90) # give time for firehose and analytics app to process all events
 
-    analytics_data = scan_table(DYNAMODB_TABLE_NAME)
+    analytics_data = scan_table(ANALYTICS_PER_POINT_DYNAMODB_TABLE_NAME)
 
     print(analytics_data)
     print(json.dumps(parse_dynamo_item_to_dict(analytics_data[0])))
@@ -56,7 +58,7 @@ def test_when_events_go_through_analytics_pipeline_the_correct_aggregations_are_
 
     time.sleep(90)  # give time for firehose and analytics app to process all events
 
-    analytics_data = scan_table(DYNAMODB_TABLE_NAME)
+    analytics_data = scan_table(ANALYTICS_PER_POINT_DYNAMODB_TABLE_NAME)
     analytics_items_as_dict = [parse_dynamo_item_to_dict(analytics_item) for analytics_item in analytics_data]
     check_traffic_jam_analytics(analytics_items_as_dict, 4)
     check_speed_differential_analytics(analytics_items_as_dict, 3, 3)

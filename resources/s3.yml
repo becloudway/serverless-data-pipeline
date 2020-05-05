@@ -7,3 +7,8 @@ Resources:
     Type: AWS::S3::Bucket
   AthenaQueryResultsBucket:
     Type: AWS::S3::Bucket
+  ResourcesBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      VersioningConfiguration:
+        Status: Enabled

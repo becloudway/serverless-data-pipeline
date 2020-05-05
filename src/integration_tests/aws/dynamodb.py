@@ -19,7 +19,22 @@ def scan_table(table_name, input={}):
     return data
 
 
-def delete_all_items(table_name):
+def delete_all_items_for_key_uniqueId(table_name):
+    table = get_table(table_name)
+    scan = table.scan(
+        ProjectionExpression='#k',
+        ExpressionAttributeNames={
+            '#k': 'uniqueId'
+        }
+    )
+    with table.batch_writer() as batch:
+        count = 0
+        for each in scan['Items']:
+            batch.delete_item(Key=each)
+            count += 1
+        print("Removed {} items".format(count))
+
+def delete_all_items_for_key_uniqueId_outputType(table_name):
     table = get_table(table_name)
     scan_input = create_scan_input(table_name)
     items = scan_table(table_name, input=scan_input)
