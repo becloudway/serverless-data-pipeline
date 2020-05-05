@@ -56,9 +56,6 @@ def create_diff_meetpunten(meetpunt):
     meetpunten = []
     meetpunt1 = meetpunt
     meetpunten.append(meetpunt1)
-    # meetpunt2 = meetpunt1.copy()
-    # meetpunt2["unieke_id"] = 100
-    # meetpunten.append(meetpunt2)
     return meetpunten
 
 

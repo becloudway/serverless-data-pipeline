@@ -1,7 +1,19 @@
-# Serverless data pipelines
+# Serverless data pipelines - Flanders Traffic analysis
 
-# Measurement locations
-| Description        |  Id           | name - id  |
+In this project we want to analyze traffic data in flanders in realtime.  
+From this data we can detect traffic jams or the traffic jams that are emerging / dissolving.
+
+As you can see from the map below the government provides measurements from 4600 locations in flanders every minute.
+
+![locations-all](img/locations-all.png)
+
+*created with [http://geojson.io/](http://geojson.io/)
+
+From these I selected the following six locations to filter on:
+
+**Measurement locations** 
+
+| Description        |  LocationId           | name - id  |
 | ------------- |:-------------:| -----:|
 | Buitenring Brussel in Wemmel     | 1897 | Complex Wemmel Deel 2 Zuid - 1897 |
 | E17 Gent-Antwerpen tussen Kruibeke en Zwijndrecht      | 957      |   complex Kruibeke (16) - 957 |
@@ -9,6 +21,12 @@
 | Binnenring Antwerpen tussen Antwerpen-Oost en Borgerhout | 3977     |    R1 RSS Snede kmpt 7,0 - 3977 |
 | Binnenring Brussel tussen Wezembeek-Oppem en Tervuren | 1065     |    R0 kmpt 23,7 dubbele seinbrug - 1065 |
 | E17 Antwerpen-Gent ter hoogte van Gentbrugge | 569      |    viaduct Gentbrugge - 569 |
+
+![locations-filtered](img/locations-filtered.png)
+
+We could allow a lot more locations in a later phase of the project.  
+Often there are different measurements for every traffic lane.
+If this is the case I used the data from the lane on the right side of the road.
 
 ## Architecture
 ![architecture.png](img/architecture.png)
@@ -54,6 +72,9 @@ Via this way it is possible to do real time analytics for traffic on all separat
 
 ## Instruction
 
+For now all infrastructure is defined as IaC except for the Kinesis Data Analytics application.
+This needs to be added in `yaml` in a later phase.
+
 * set your profile and region in `serverless.yml`
 * tail logs: `serverless logs -f functionName -t` eg: `serverless logs -f PublishTrafficData -t`
 * invoke: `serverless invoke --function functionName --data "hello world"`
@@ -93,6 +114,11 @@ Deze gegevens worden door AWV en het verkeerscentrum niet meer gebruikt.
 * Voertuigklasse 4 = Ongelede vrachtwagens = voertuigen metvgeschatte lengte tussen 6,90m en 12,00m bv.:Vrachtwagen of trekker 
 * Voertuigklasse 5 = Gelede vrachtwagens of bussen= voertuigen met geschatte lengte langer dan 12,00m bv.: vrachtwagen+aanhangwagen, trekker+aanhangwagen of bus
 
+## Integration tests
 
-
+Runt the integration tests on a separate environment
+```bash
+cd src/integration_tests
+pytest tests.py 
+```
 

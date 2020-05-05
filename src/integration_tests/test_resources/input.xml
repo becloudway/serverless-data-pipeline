@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<miv xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://miv.opendata.belfla.be/miv-verkeersdata.xsd" schemaVersion="1.0.0">
+    <tijd_publicatie>2020-05-01T09:20:21.45+01:00</tijd_publicatie>
+    <tijd_laatste_config_wijziging>2019-12-05T10:26:49+01:00</tijd_laatste_config_wijziging>
+    <meetpunt beschrijvende_id="H222L10" unieke_id="29">
+        <lve_nr>55</lve_nr>
+        <tijd_waarneming>2020-04-30T16:56:00+01:00</tijd_waarneming>
+        <tijd_laatst_gewijzigd>2020-04-30T16:57:14+01:00</tijd_laatst_gewijzigd>
+        <actueel_publicatie>0</actueel_publicatie>
+        <beschikbaar>1</beschikbaar>
+        <defect>0</defect>
+        <geldig>0</geldig>
+        <meetdata klasse_id="1">
+            <verkeersintensiteit>0</verkeersintensiteit>
+            <voertuigsnelheid_rekenkundig>0</voertuigsnelheid_rekenkundig>
+            <voertuigsnelheid_harmonisch>252</voertuigsnelheid_harmonisch>
+        </meetdata>
+        <meetdata klasse_id="2">
+            <verkeersintensiteit>0</verkeersintensiteit>
+            <voertuigsnelheid_rekenkundig>0</voertuigsnelheid_rekenkundig>
+            <voertuigsnelheid_harmonisch>252</voertuigsnelheid_harmonisch>
+        </meetdata>
+        <meetdata klasse_id="3">
+            <verkeersintensiteit>0</verkeersintensiteit>
+            <voertuigsnelheid_rekenkundig>0</voertuigsnelheid_rekenkundig>
+            <voertuigsnelheid_harmonisch>252</voertuigsnelheid_harmonisch>
+        </meetdata>
+        <meetdata klasse_id="4">
+            <verkeersintensiteit>2</verkeersintensiteit>
+            <voertuigsnelheid_rekenkundig>120</voertuigsnelheid_rekenkundig>
+            <voertuigsnelheid_harmonisch>120</voertuigsnelheid_harmonisch>
+        </meetdata>
+        <meetdata klasse_id="5">
+            <verkeersintensiteit>0</verkeersintensiteit>
+            <voertuigsnelheid_rekenkundig>0</voertuigsnelheid_rekenkundig>
+            <voertuigsnelheid_harmonisch>252</voertuigsnelheid_harmonisch>
+        </meetdata>
+        <rekendata>
+            <bezettingsgraad>0</bezettingsgraad>
+            <beschikbaarheidsgraad>100</beschikbaarheidsgraad>
+            <onrustigheid>0</onrustigheid>
+        </rekendata>
+    </meetpunt>
+    <meetpunt beschrijvende_id="H222L20" unieke_id="30">
+        <lve_nr>55</lve_nr>
+        <tijd_waarneming>2020-04-30T16:57:00+01:00</tijd_waarneming>
+        <tijd_laatst_gewijzigd>2020-04-30T16:59:05+01:00</tijd_laatst_gewijzigd>
+        <actueel_publicatie>0</actueel_publicatie>
+        <beschikbaar>1</beschikbaar>
+        <defect>0</defect>
+        <geldig>0</geldig>
+        <meetdata klasse_id="1">
+            <verkeersintensiteit>0</verkeersintensiteit>
+            <voertuigsnelheid_rekenkundig>0</voertuigsnelheid_rekenkundig>
+            <voertuigsnelheid_harmonisch>252</voertuigsnelheid_harmonisch>
+        </meetdata>
+        <meetdata klasse_id="2">
+            <verkeersintensiteit>0</verkeersintensiteit>
+            <voertuigsnelheid_rekenkundig>0</voertuigsnelheid_rekenkundig>
+            <voertuigsnelheid_harmonisch>252</voertuigsnelheid_harmonisch>
+        </meetdata>
+        <meetdata klasse_id="3">
+            <verkeersintensiteit>0</verkeersintensiteit>
+            <voertuigsnelheid_rekenkundig>0</voertuigsnelheid_rekenkundig>
+            <voertuigsnelheid_harmonisch>252</voertuigsnelheid_harmonisch>
+        </meetdata>
+        <meetdata klasse_id="4">
+            <verkeersintensiteit>0</verkeersintensiteit>
+            <voertuigsnelheid_rekenkundig>0</voertuigsnelheid_rekenkundig>
+            <voertuigsnelheid_harmonisch>252</voertuigsnelheid_harmonisch>
+        </meetdata>
+        <meetdata klasse_id="5">
+            <verkeersintensiteit>0</verkeersintensiteit>
+            <voertuigsnelheid_rekenkundig>0</voertuigsnelheid_rekenkundig>
+            <voertuigsnelheid_harmonisch>252</voertuigsnelheid_harmonisch>
+        </meetdata>
+        <rekendata>
+            <bezettingsgraad>0</bezettingsgraad>
+            <beschikbaarheidsgraad>100</beschikbaarheidsgraad>
+            <onrustigheid>0</onrustigheid>
+        </rekendata>
+    </meetpunt>
+</miv>

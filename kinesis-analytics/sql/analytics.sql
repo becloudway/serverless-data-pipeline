@@ -41,39 +41,36 @@ CREATE OR REPLACE STREAM "SPEED_SQL_STREAM" (
     "uniqueId" INTEGER,
     "speed" INTEGER,
     "bezettingsgraad" INTEGER,
-    "recordTimestamp" BIGINT);
+    "recordTimestamp" BIGINT,
+    "avgSpeed2Minutes" INTEGER,
+    "avgSpeed10Minutes" INTEGER);
 
 CREATE OR REPLACE PUMP "STREAM_PUMP_SPEED" AS
     INSERT INTO "SPEED_SQL_STREAM"
         SELECT STREAM
             "uniqueId",
-            AVG("speed")
-            -- over W1
-            ,
-            AVG("bezettingsgraad")
-            -- over W1
-            ,
-            -- MAX("recordTimestamp")
-            MAX(UNIX_TIMESTAMP("recordTimestamp"))
-            -- over W1
+            AVG("speed") over W0,
+            AVG("bezettingsgraad") over W0,
+            MAX(UNIX_TIMESTAMP("recordTimestamp")) over W0,
+            AVG("speed") over W2,
+            AVG("speed") over W10
         FROM "INCOMING_STREAM"
-        -- WINDOW
-            -- window AS (PARTITION BY "uniqueId" ROWS 3 PRECEDING);
+        WINDOW
+            W0 AS (PARTITION BY FLOOR("INCOMING_STREAM"."recordTimestamp" to MINUTE), "uniqueId" ROWS 0 PRECEDING),
+            W2 AS (PARTITION BY FLOOR("INCOMING_STREAM"."recordTimestamp" to MINUTE), "uniqueId" ROWS 2 PRECEDING),
+            W10 AS (PARTITION BY FLOOR("INCOMING_STREAM"."recordTimestamp" to MINUTE), "uniqueId" ROWS 10 PRECEDING);
 
         -- below is working
-        WINDOWED BY STAGGER (
-            PARTITION BY FLOOR("INCOMING_STREAM"."recordTimestamp" to SECOND), "uniqueId" RANGE INTERVAL '3' SECOND);
-
-        -- GROUP BY "uniqueId", FLOOR("INCOMING_STREAM"."recordTimestamp") to SECOND
+        -- WINDOWED BY STAGGER (
+            -- PARTITION BY FLOOR("INCOMING_STREAM"."recordTimestamp" to MINUTE), "uniqueId" RANGE INTERVAL '2' MINUTE);
         -- WINDOW W1 AS (
-        --   PARTITION BY FLOOR("INCOMING_STREAM"."recordTimestamp" to SECOND)
-        --   RANGE INTERVAL '3' SECOND PRECEDING);
-        -- GROUP BY "uniqueId",
-        --      STEP("INCOMING_STREAM"."recordTimestamp" BY  INTERVAL '3' SECOND)
-        -- ORDER BY "INCOMING_STREAM"."recordTimestamp";
+        --     PARTITION BY FLOOR("INCOMING_STREAM"."recordTimestamp" to MINUTE), "uniqueId"
+        --     RANGE INTERVAL '2' MINUTE PRECEDING);
 
-        -- I cannot get this thumbling window working with my own timestamp field
-        -- STEP("INCOMING_STREAM".ROWTIME BY INTERVAL '3' SECOND);
+        -- not working yet
+        -- GROUP BY "uniqueId", FLOOR("INCOMING_STREAM"."recordTimestamp" to MINUTE),
+        --      STEP("INCOMING_STREAM"."recordTimestamp" BY INTERVAL '2' MINUTE);
+
 
 
 -- Calculate the difference in speed between the current window and the previous one
@@ -88,7 +85,7 @@ CREATE OR REPLACE STREAM "SPEED_CHANGE_SQL_STREAM" (
 CREATE OR REPLACE PUMP "SPEED_CHANGE_PUMP" AS
     INSERT INTO "SPEED_CHANGE_SQL_STREAM"
         SELECT STREAM "s"."uniqueId",
-            LAG("s"."speed", 3, "s"."speed") OVER CURRENT_WINDOW AS "previousSpeed",
+            LAG("s"."speed", 1, "s"."speed") OVER CURRENT_WINDOW AS "previousSpeed",
             "s"."speed" AS "currentSpeed",
             "s"."bezettingsgraad",
             "s"."recordTimestamp"

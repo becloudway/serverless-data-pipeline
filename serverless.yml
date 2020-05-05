@@ -41,7 +41,7 @@ functions:
     handler: thundra.handler.wrapper
     module: src/RetrieveXMLTrafficData
     layers:
-      - arn:aws:lambda:eu-west-1:269863060030:layer:thundra-lambda-python-layer:31
+      - arn:aws:lambda:eu-west-1:269863060030:layer:thundra-lambda-python-layer:33
     environment:
       TRAFFIC_DATA_URL: "http://miv.opendata.belfla.be/miv/verkeersdata"
       BUCKET_NAME:
@@ -67,7 +67,7 @@ functions:
     handler: thundra.handler.wrapper
     module: src/TransformTrafficDataToJson
     layers:
-      - arn:aws:lambda:eu-west-1:269863060030:layer:thundra-lambda-python-layer:31
+      - arn:aws:lambda:eu-west-1:269863060030:layer:thundra-lambda-python-layer:33
     environment:
       BUCKET_NAME:
         Ref: OriginBucket
@@ -87,19 +87,19 @@ functions:
               - "/*"
     events:
       - s3:
-        bucket:
-          Ref: OriginBucket
-        event: s3:ObjectCreated:*
-        rules:
-          - prefix: xml/input/
-          - suffix: .xml
-        existing: true
+          bucket:
+            Ref: OriginBucket
+          event: s3:ObjectCreated:*
+          rules:
+            - prefix: xml/input/
+            - suffix: .xml
+          existing: true
 
   PublishTrafficDataFunction:
     handler: thundra.handler.wrapper
     module: src/PublishTrafficData
     layers:
-      - arn:aws:lambda:eu-west-1:269863060030:layer:thundra-lambda-python-layer:31
+      - arn:aws:lambda:eu-west-1:269863060030:layer:thundra-lambda-python-layer:33
     environment:
       BUCKET_NAME:
         Ref: OriginBucket
@@ -125,22 +125,25 @@ functions:
         Resource: { Fn::GetAtt: [ DeliveryStream, Arn ] }
     events:
       - s3:
-        bucket:
-          Ref: OriginBucket
-        event: s3:ObjectCreated:*
-        existing: true
-        rules:
-          - prefix: json/input/
-          - suffix: .json
+          bucket:
+            Ref: OriginBucket
+          event: s3:ObjectCreated:*
+          existing: true
+          rules:
+            - prefix: json/input/
+            - suffix: .json
 
   StreamProcessor:
     handler: thundra.handler.wrapper
     module: src/StreamProcessor
     timeout: 300
     environment:
-      FILTER_IDS: '2341, 235'
+      FILTER_IDS: '1897, 957, 3159, 3977, 1065, 569'
+      thundra_agent_lambda_debug_enable: true
+      thundra_agent_lambda_trace_response_skip: true
+      thundra_agent_lambda_trace_request_skip: true
     layers:
-      - arn:aws:lambda:eu-west-1:269863060030:layer:thundra-lambda-python-layer:31
+        - arn:aws:lambda:eu-west-1:269863060030:layer:thundra-lambda-python-layer:33
     iamRoleStatementsInherit: true
     iamRoleStatements:
       - Effect: "Allow"
@@ -157,7 +160,7 @@ functions:
     environment:
       REGION: eu-west-1
     layers:
-      - arn:aws:lambda:eu-west-1:269863060030:layer:thundra-lambda-python-layer:31
+      - arn:aws:lambda:eu-west-1:269863060030:layer:thundra-lambda-python-layer:33
     iamRoleStatementsInherit: true
     iamRoleStatements:
       - Effect: "Allow"
@@ -191,15 +194,15 @@ functions:
               arn: !GetAtt TrafficAlertsDeadQueue.Arn
               type: sqs
 
-  SaveAnalyticsResults:
+  StoreAnalyticsResultsPerPoint:
     handler: thundra.handler.wrapper
-    module: src/SaveAnalyticsResults
+    module: src/StoreAnalyticsResultsPerPoint
     timeout: 10
     reservedConcurrency: 1
     layers:
-      - arn:aws:lambda:eu-west-1:269863060030:layer:thundra-lambda-python-layer:31
+      - arn:aws:lambda:eu-west-1:269863060030:layer:thundra-lambda-python-layer:33
     environment:
-      TABLE_NAME: !Ref AnalyticsResultsTable
+      TABLE_NAME: !Ref RealTimeAnalyticsPerPointTable
     iamRoleStatementsInherit: true
     iamRoleStatements:
       - Effect: "Allow"
@@ -216,7 +219,7 @@ functions:
           - "dynamodb:Delete*"
           - "dynamodb:Update*"
           - "dynamodb:PutItem"
-        Resource: !GetAtt AnalyticsResultsTable.Arn
+        Resource: !GetAtt RealTimeAnalyticsPerPointTable.Arn
       - Effect: "Allow"
         Action:
           - "sqs:SendMessage"
@@ -235,6 +238,57 @@ functions:
             onFailure:
               arn: !GetAtt SaveAnalyticsDeadQueue.Arn
               type: sqs
+  AlertSaver:
+    handler: thundra.handler.wrapper
+    module: src/AlertSaver
+    timeout: 10
+    reservedConcurrency: 1
+    layers:
+      - arn:aws:lambda:eu-west-1:269863060030:layer:thundra-lambda-python-layer:33
+    environment:
+      TABLE_NAME: !Ref TrafficJamAlertsTable
+    iamRoleStatementsInherit: true
+    iamRoleStatements:
+      - Effect: "Allow"
+        Action:
+          - "dynamodb:DescribeStream"
+          - "dynamodb:DescribeTable"
+          - "dynamodb:BatchWrite*"
+          - "dynamodb:Delete*"
+          - "dynamodb:Update*"
+          - "dynamodb:PutItem"
+        Resource: !GetAtt RealTimeAnalyticsPerPointTable.Arn
+      - Effect: "Allow"
+        Action:
+          - "dynamodb:DescribeStream"
+          - "dynamodb:DescribeTable"
+          - "dynamodb:BatchWrite*"
+          - "dynamodb:Delete*"
+          - "dynamodb:Update*"
+          - "dynamodb:PutItem"
+        Resource: !GetAtt TrafficJamAlertsTable.Arn
+    events:
+      - stream:
+          type: dynamodb
+          arn:
+            Fn::GetAtt: [RealTimeAnalyticsPerPointTable, StreamArn]
+          maximumRetryAttempts: 2
+  AlertSender:
+    handler: thundra.handler.wrapper
+    module: src/AlertSender
+    timeout: 10
+    reservedConcurrency: 1
+    layers:
+      - arn:aws:lambda:eu-west-1:269863060030:layer:thundra-lambda-python-layer:33
+    environment:
+      TABLE_NAME: !Ref TrafficJamAlertsTable
+    iamRoleStatementsInherit: true
+    events:
+      - stream:
+          type: dynamodb
+          arn:
+            Fn::GetAtt: [TrafficJamAlertsTable, StreamArn]
+          maximumRetryAttempts: 2
 
 
 resources:
@@ -248,6 +302,15 @@ resources:
       DeliveryStreamName:
         Description: "Name of the firehose over which all traffic events flow"
         Value: !Ref DeliveryStream
-      DynamoDBAnalyticsResultTableName:
+      RealTimeAnalyticsPerPointTableName:
         Description: "Single table that holds the analytics results"
-        Value: !Ref AnalyticsResultsTable
+        Value: !Ref RealTimeAnalyticsPerPointTable
+      TrafficJamAlertsTableName:
+        Description: "Table that holds the traffic jam alerts"
+        Value: !Ref TrafficJamAlertsTable
+      OriginBucketName:
+        Description: "Bucket where input files are placed"
+        Value: !Ref OriginBucket
+      ResourcesBucketName:
+        Description: "Bucket where config files are placed"
+        Value: !Ref ResourcesBucket
