@@ -28,8 +28,8 @@ CREATE OR REPLACE PUMP "TRAFFIC_JAM_SQL_PUMP" AS
             "uniqueId",
             "speed",
             CASE
-                WHEN "speed" BETWEEN 0 AND 40 THEN 1
-                WHEN "speed" BETWEEN 40 AND 200 THEN 0
+                WHEN "speed" BETWEEN 0 AND 50 THEN 1
+                WHEN "speed" BETWEEN 51 AND 200 THEN 0
                 ELSE -1
             END AS "trafficJamIndicator",
             UNIX_TIMESTAMP("recordTimestamp") AS "recordTimestamp"
@@ -72,7 +72,23 @@ CREATE OR REPLACE PUMP "STREAM_PUMP_SPEED" AS
         --      STEP("INCOMING_STREAM"."recordTimestamp" BY INTERVAL '2' MINUTE);
 
 
+-- Stream all the latest speed averages
+CREATE OR REPLACE STREAM "SPEED_AGG_AVG_STREAM" (
+    "uniqueId" INTEGER,
+    "currentSpeed" INTEGER,
+    "avgSpeed2Minutes" INTEGER,
+    "avgSpeed10Minutes" INTEGER,
+    "recordTimestamp" BIGINT);
 
+CREATE OR REPLACE PUMP "SPEED_AGG_AVG_PUMP" AS
+    INSERT INTO "SPEED_AGG_AVG_STREAM"
+        SELECT STREAM "s"."uniqueId",
+            "s"."speed" AS "currentSpeed",
+            "s"."avgSpeed2Minutes" AS "currentSpeed",
+            "s"."avgSpeed10Minutes" AS "currentSpeed",
+            "s"."recordTimestamp"
+        FROM "SPEED_SQL_STREAM" AS "s";
+        
 -- Calculate the difference in speed between the current window and the previous one
 -- Get previous speed
 CREATE OR REPLACE STREAM "SPEED_CHANGE_SQL_STREAM" (
@@ -145,6 +161,8 @@ CREATE OR REPLACE STREAM "OUTPUT_STREAM" (
     "uniqueId" INTEGER,
     "previousSpeed" INTEGER,
     "currentSpeed" INTEGER,
+    "avgSpeed2Minutes" INTEGER,
+    "avgSpeed10Minutes" INTEGER,
     "speedDiffIndicator" INTEGER,
     "trafficJamIndicator" INTEGER,
     "bezettingsgraad" INTEGER,
@@ -180,6 +198,20 @@ CREATE OR REPLACE PUMP "TRAFFIC_JAM_TO_OUTPUT_PUMP" AS
         "ml"."locatie"
         FROM "TRAFFIC_JAM_SQL_STREAM" AS "tjs" LEFT JOIN "measurementLocations" as "ml"
         ON "tjs"."uniqueId" = "ml"."id";
+        
+-- Publish avg speeds data to output stream
+CREATE OR REPLACE PUMP "TRAFFIC_JAM_TO_OUTPUT_PUMP" AS
+    INSERT INTO "OUTPUT_STREAM" ("outputType", "uniqueId", "currentSpeed", "avgSpeed2Minutes", "avgSpeed10Minutes", "recordTimestamp", "location")
+        SELECT STREAM
+        'SPEED_AVG',
+        "saa"."uniqueId",
+        "saa"."currentSpeed",
+        "saa"."avgSpeed2Minutes",
+        "saa"."avgSpeed10Minutes",
+        "saa"."recordTimestamp",
+        "ml"."locatie"
+        FROM "SPEED_AGG_AVG_STREAM" AS "saa" LEFT JOIN "measurementLocations" as "ml"
+        ON "saa"."uniqueId" = "ml"."id";
 
    
 
@@ -190,6 +222,8 @@ CREATE OR REPLACE STREAM "OUTPUT_STREAM_2" (
     "uniqueId" INTEGER,
     "previousSpeed" INTEGER,
     "currentSpeed" INTEGER,
+    "avgSpeed2Minutes" INTEGER,
+    "avgSpeed10Minutes" INTEGER,
     "speedDiffIndicator" INTEGER,
     "trafficJamIndicator" INTEGER,
     "bezettingsgraad" INTEGER,
@@ -222,4 +256,14 @@ CREATE OR REPLACE PUMP "OUTPUT_STREAM_2_TRAFFIC_JAM_PUMP" AS
         FROM "TRAFFIC_JAM_SQL_STREAM" AS "tjs";
         
         
-
+-- Publish avg speeds data to output stream
+CREATE OR REPLACE PUMP "OUTPUT_STREAM_2_SPEED_AVG_PUMP" AS
+    INSERT INTO "OUTPUT_STREAM" ("outputType", "uniqueId", "currentSpeed", "avgSpeed2Minutes", "avgSpeed10Minutes", "recordTimestamp")
+        SELECT STREAM
+        'SPEED_AVG',
+        "saa"."uniqueId",
+        "saa"."currentSpeed",
+        "saa"."avgSpeed2Minutes",
+        "saa"."avgSpeed10Minutes",
+        "saa"."recordTimestamp"
+        FROM "SPEED_AGG_AVG_STREAM" AS "saa";

@@ -16,17 +16,18 @@ def handle(event, context):
         payload = base64.b64decode(record['kinesis']['data'])
         data = json.loads(payload)
         if data.get('outputType') == 'SPEED_DIFFERENTIAL':
-            print('Type is speed')
-            print(data)
-            save_speed_item(data)
+            save_speed_diff_item(data)
         elif data.get('outputType') == 'TRAFFIC_JAM':
-            print(data)
             save_traffic_jam_item(data)
+        elif data.get('outputType') == 'SPEED_AVG':
+            print("type is speed_avg")
+            print(data)
+            save_speed_avg_item(data)
 
     print("END----------------------------------------------END")
 
 
-def save_speed_item(data_item):
+def save_speed_diff_item(data_item):
     combo_key = create_outputType_recordTimestamp_key(data_item)
     try:
         table.update_item(
@@ -47,6 +48,24 @@ def save_speed_item(data_item):
             ConditionExpression='speedDiffIndicator <> :sd')
     except dynamodb_resource.meta.client.exceptions.ConditionalCheckFailedException as e:
         None
+
+
+def save_speed_avg_item(data_item):
+    combo_key = create_outputType_recordTimestamp_key(data_item)
+    speed_avg_item = {
+        'uniqueId': str(data_item.get('uniqueId')),
+        'recordTimestamp': str(data_item.get('recordTimestamp')),
+        'outputType': data_item.get('outputType'),
+        'outputType_recordTimestamp': combo_key,
+        'currentSpeed': data_item.get('currentSpeed'),
+        'avgSpeed2Minutes': data_item.get('avgSpeed2Minutes'),
+        'avgSpeed10Minutes': data_item.get('avgSpeed10Minutes'),
+        'loc': data_item.get('location'),
+    }
+    print(speed_avg_item)
+    with table.batch_writer() as batch:
+        print(f"Will save item: {speed_avg_item}")
+        batch.put_item(Item=speed_avg_item)
 
 
 def save_traffic_jam_item(data_item):
