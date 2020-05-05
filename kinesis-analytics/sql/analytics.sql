@@ -57,8 +57,8 @@ CREATE OR REPLACE PUMP "STREAM_PUMP_SPEED" AS
         FROM "INCOMING_STREAM"
         WINDOW
             W0 AS (PARTITION BY FLOOR("INCOMING_STREAM"."recordTimestamp" to MINUTE), "uniqueId" ROWS 0 PRECEDING),
-            W2 AS (PARTITION BY FLOOR("INCOMING_STREAM"."recordTimestamp" to MINUTE), "uniqueId" ROWS 2 PRECEDING),
-            W10 AS (PARTITION BY FLOOR("INCOMING_STREAM"."recordTimestamp" to MINUTE), "uniqueId" ROWS 10 PRECEDING);
+            W2 AS (PARTITION BY FLOOR("INCOMING_STREAM"."recordTimestamp" to HOUR), "uniqueId" ROWS 2 PRECEDING),
+            W10 AS (PARTITION BY FLOOR("INCOMING_STREAM"."recordTimestamp" to HOUR), "uniqueId" ROWS 10 PRECEDING);
 
         -- below is working
         -- WINDOWED BY STAGGER (
