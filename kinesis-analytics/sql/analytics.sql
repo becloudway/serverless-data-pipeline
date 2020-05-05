@@ -29,7 +29,7 @@ CREATE OR REPLACE PUMP "TRAFFIC_JAM_SQL_PUMP" AS
             "speed",
             CASE
                 WHEN "speed" BETWEEN 0 AND 50 THEN 1
-                WHEN "speed" BETWEEN 51 AND 200 THEN 0
+                WHEN "speed" BETWEEN 51 AND 250 THEN 0
                 ELSE -1
             END AS "trafficJamIndicator",
             UNIX_TIMESTAMP("recordTimestamp") AS "recordTimestamp"
@@ -198,9 +198,10 @@ CREATE OR REPLACE PUMP "TRAFFIC_JAM_TO_OUTPUT_PUMP" AS
         "ml"."locatie"
         FROM "TRAFFIC_JAM_SQL_STREAM" AS "tjs" LEFT JOIN "measurementLocations" as "ml"
         ON "tjs"."uniqueId" = "ml"."id";
-        
+
+
 -- Publish avg speeds data to output stream
-CREATE OR REPLACE PUMP "TRAFFIC_JAM_TO_OUTPUT_PUMP" AS
+CREATE OR REPLACE PUMP "AVG_SPEED_TO_OUTPUT_PUMP" AS
     INSERT INTO "OUTPUT_STREAM" ("outputType", "uniqueId", "currentSpeed", "avgSpeed2Minutes", "avgSpeed10Minutes", "recordTimestamp", "location")
         SELECT STREAM
         'SPEED_AVG',

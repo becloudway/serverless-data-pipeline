@@ -1,22 +1,49 @@
-from __future__ import print_function
-import boto3
+import json
+import logging
 import os
 
-dynamodb_resource = boto3.resource('dynamodb')
-table = dynamodb_resource.Table(os.environ["TABLE_NAME"])
+from urllib.request import Request, urlopen
+from urllib.error import URLError, HTTPError
+
+
+SLACK_CHANNEL = os.environ['SLACK_CHANNEL']
+SLACK_WEBHOOK = os.environ['SLACK_WEBHOOK']
+
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 
 def handle(event, context):
-    print("START----------------------------------------------START")
-
-    print(event)
     for record in event['Records']:
+        if not record["dynamodb"].get("NewImage"):
+            continue;
         unique_id = record["dynamodb"]["NewImage"]["uniqueId"]['S']
+        location = record["dynamodb"]["NewImage"]["loc"]['S']
         alert_indicator = record["dynamodb"]["NewImage"]["alertIndicator"]['S']
+
         if alert_indicator == "1":
-            print(f"There is a traffic jam at location: {unique_id}")
+            message = f"NEW *traffic jam* at location: *{location}* :sob:"
+            send_message(message)
         elif alert_indicator == "0":
-            print(f"The traffic jam at location: {unique_id} has disappeared")
+            if not record["dynamodb"].get("OldImage"):
+                continue
+            else:
+                message = f"The traffic jam at location: {location} is *gone*! :smile:"
+                send_message(message)
 
-    print("END----------------------------------------------END")
 
+def send_message(message):
+    slack_message = {
+        'channel': SLACK_CHANNEL,
+        'text': message
+    }
+    req = Request(SLACK_WEBHOOK, json.dumps(slack_message).encode('utf-8'))
+    try:
+        response = urlopen(req)
+        response.read()
+        logger.info("Message posted to %s", slack_message['channel'])
+    except HTTPError as e:
+        logger.error("Request failed: %d %s", e.code, e.reason)
+    except URLError as e:
+        logger.error("Server connection failed: %s", e.reason)

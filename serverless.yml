@@ -285,7 +285,8 @@ functions:
     layers:
       - arn:aws:lambda:eu-west-1:114300393969:layer:lumigo-python-tracer:115
     environment:
-      TABLE_NAME: !Ref TrafficJamAlertsTable
+      SLACK_WEBHOOK: ${ssm:/slack/traffic/webhook}
+      SLACK_CHANNEL: traffic-alerts
     iamRoleStatementsInherit: true
     events:
       - stream:

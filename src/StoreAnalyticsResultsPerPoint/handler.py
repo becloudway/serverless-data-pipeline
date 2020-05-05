@@ -12,6 +12,7 @@ def handle(event, context):
     print("START----------------------------------------------START")
 
     print(event)
+
     for record in event['Records']:
         payload = base64.b64decode(record['kinesis']['data'])
         data = json.loads(payload)
@@ -20,9 +21,9 @@ def handle(event, context):
         elif data.get('outputType') == 'TRAFFIC_JAM':
             save_traffic_jam_item(data)
         elif data.get('outputType') == 'SPEED_AVG':
-            print("type is speed_avg")
-            print(data)
-            save_speed_avg_item(data)
+            item = create_speed_avg_item(data)
+            print(f"Will save item: {item}")
+            table.put_item(Item=item)
 
     print("END----------------------------------------------END")
 
@@ -50,7 +51,7 @@ def save_speed_diff_item(data_item):
         None
 
 
-def save_speed_avg_item(data_item):
+def create_speed_avg_item(data_item):
     combo_key = create_outputType_recordTimestamp_key(data_item)
     speed_avg_item = {
         'uniqueId': str(data_item.get('uniqueId')),
@@ -62,10 +63,7 @@ def save_speed_avg_item(data_item):
         'avgSpeed10Minutes': data_item.get('avgSpeed10Minutes'),
         'loc': data_item.get('location'),
     }
-    print(speed_avg_item)
-    with table.batch_writer() as batch:
-        print(f"Will save item: {speed_avg_item}")
-        batch.put_item(Item=speed_avg_item)
+    return speed_avg_item
 
 
 def save_traffic_jam_item(data_item):

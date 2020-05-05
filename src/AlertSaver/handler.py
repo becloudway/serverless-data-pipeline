@@ -7,19 +7,15 @@ table = dynamodb_resource.Table(os.environ["TABLE_NAME"])
 
 
 def handle(event, context):
-    print("START----------------------------------------------START")
-
-    print('Successfully processed %s records.' % str(len(event['Records'])))
-
     for record in event['Records']:
         if not record["dynamodb"].get("NewImage"):
+            print("Continuing cause no NewImage")
             continue
         if 'trafficJamIndicator' in record["dynamodb"]["NewImage"]:
             unique_id = record["dynamodb"]["NewImage"]["uniqueId"]['S']
             alert_indicator = record["dynamodb"]["NewImage"]["trafficJamIndicator"]['N']
             location = record["dynamodb"]["NewImage"]["loc"]['S']
             save_traffic_jam_alert_item(unique_id, alert_indicator, location)
-    print("END----------------------------------------------END")
 
 
 def save_traffic_jam_alert_item(unique_id, alert_indicator, location):
