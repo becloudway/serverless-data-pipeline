@@ -23,13 +23,13 @@ def handle(event, context):
         alert_indicator = record["dynamodb"]["NewImage"]["alertIndicator"]['S']
 
         if alert_indicator == "1":
-            message = f"NEW *traffic jam* at location: *{location}* :sob:"
+            message = f"*NEW* *traffic jam* at location: *{location}* :sob:"
             send_message(message)
         elif alert_indicator == "0":
             if not record["dynamodb"].get("OldImage"):
                 continue
             else:
-                message = f"The traffic jam at location: {location} is *gone*! :smile:"
+                message = f"The *traffic jam* at location: *{location}* is *GONE*! :smile:"
                 send_message(message)
 
 
