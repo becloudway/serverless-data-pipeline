@@ -11,8 +11,6 @@ table = dynamodb_resource.Table(os.environ["TABLE_NAME"])
 def handle(event, context):
     print("START----------------------------------------------START")
 
-    print(event)
-
     for record in event['Records']:
         payload = base64.b64decode(record['kinesis']['data'])
         data = json.loads(payload)

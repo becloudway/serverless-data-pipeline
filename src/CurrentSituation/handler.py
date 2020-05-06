@@ -1,6 +1,4 @@
 import boto3
-import botocore
-import base64
 import os
 import json
 from decimal import Decimal
