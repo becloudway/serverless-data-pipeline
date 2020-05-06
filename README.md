@@ -7,8 +7,6 @@ As you can see from the map below the government provides measurements from 4600
 
 ![locations-all](img/locations.png)
 
-*created with [http://geojson.io/](http://geojson.io/)
-
 From these I selected the following six locations to filter on:
 
 **Measurement locations** 
@@ -24,6 +22,8 @@ From these I selected the following six locations to filter on:
 
 
 ![locations-filtered](img/locations-filtered.png)
+
+*created with [http://geojson.io/](http://geojson.io/)
 
 We could allow a lot more locations in a later phase of the project.  
 Often there are different measurements for every traffic lane.
