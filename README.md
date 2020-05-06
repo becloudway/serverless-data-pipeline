@@ -5,7 +5,7 @@ From this data we can detect traffic jams or the traffic jams that are emerging 
 
 As you can see from the map below the government provides measurements from 4600 locations in flanders every minute.
 
-![locations-all](img/locations-all.png)
+![locations-all](img/locations.png)
 
 *created with [http://geojson.io/](http://geojson.io/)
 
