@@ -6,7 +6,8 @@
     "serverless-pseudo-parameters": "^2.5.0"
   },
   "devDependencies": {
-    "serverless-python-requirements": "^5.1.0",
-    "serverless-iam-roles-per-function": "^2.0.2"
+    "serverless-iam-roles-per-function": "^2.0.2",
+    "serverless-lumigo": "^1.9.0",
+    "serverless-python-requirements": "^5.1.0"
   }
 }

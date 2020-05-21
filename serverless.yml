@@ -4,11 +4,10 @@ package:
   individually: true
 
 plugins:
+  - serverless-lumigo
   - serverless-iam-roles-per-function
   - serverless-python-requirements
   - serverless-pseudo-parameters
-
-
 custom:
   lumigo:
     token: ${ssm:/lumigo/token}
