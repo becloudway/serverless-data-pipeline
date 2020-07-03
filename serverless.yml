@@ -22,7 +22,7 @@ provider:
   stage: dev
   runtime: python3.7
   region: eu-west-1
-  profile: cloudway-nick
+  profile: default
   httpApi:
     cors:
       allowedOrigins:
