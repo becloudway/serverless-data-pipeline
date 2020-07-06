@@ -29,8 +29,8 @@ CREATE OR REPLACE PUMP "TRAFFIC_JAM_SQL_PUMP" AS
             "uniqueId",
             "speed",
             CASE
-                WHEN "speed" BETWEEN 0 AND 40 THEN 1
-                WHEN "speed" BETWEEN 41 AND 250 THEN 0
+                WHEN ("speed" BETWEEN 0 AND 40) AND ("bezettingsgraad" <> 0) THEN 1
+                WHEN ("speed" BETWEEN 41 AND 250) OR ("bezettingsgraad" = 0) THEN 0
                 ELSE -1
             END AS "trafficJamIndicator",
             UNIX_TIMESTAMP("recordTimestamp") AS "recordTimestamp",
