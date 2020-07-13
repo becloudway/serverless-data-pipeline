@@ -49,6 +49,9 @@ Resources:
                 - 's3:ListBucket'
                 - 's3:ListBucketMultipartUploads'
                 - 's3:PutObject'
+                - 'glue:GetTable'
+                - 'glue:GetTableVersion'
+                - 'glue:GetTableVersions'
               Resource:
                 - { Fn::GetAtt: [ DeliveryBucket, Arn ] }
                 - Fn::Join:
@@ -56,6 +59,12 @@ Resources:
                   - - 'arn:aws:s3:::'
                     - Ref: DeliveryBucket
                     - '/*'
+            - Effect: Allow
+              Action:
+                - 'glue:GetTable'
+                - 'glue:GetTableVersion'
+                - 'glue:GetTableVersions'
+              Resource: '*'
 
   AnalyticsResultStream:
     Type: AWS::KinesisFirehose::DeliveryStream
