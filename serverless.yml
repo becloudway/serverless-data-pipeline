@@ -31,6 +31,7 @@ provider:
         - GET
         - OPTIONS
   reservedConcurrency: 1
+  handler: /opt/python/lumigo_tracer._handler
   memorySize: 512
   versionFunctions: false
   timeout: 30
@@ -42,14 +43,11 @@ provider:
         - "logs:PutLogEvents"
       Resource: '*'
   environment:
-#    thundra_apiKey: ${ssm:/thundra/apiKey}
     LUMIGO_TRACER_TOKEN: ${ssm:/lumigo/token}
     LUMIGO_ORIGINAL_HANDLER: handler.handle
 
 functions:
   RetrieveXMLTrafficData:
-    handler: /opt/python/lumigo_tracer._handler
-#    handler: handler.handle
     module: src/RetrieveXMLTrafficData
     timeout: 60
     layers:
@@ -76,8 +74,6 @@ functions:
           enabled: false
 
   TransformTrafficToJsonData:
-    handler: /opt/python/lumigo_tracer._handler
-#    handler: handler.handle
     module: src/TransformTrafficDataToJson
     layers:
       - arn:aws:lambda:eu-west-1:114300393969:layer:lumigo-python-tracer:115
@@ -109,8 +105,6 @@ functions:
           existing: true
 
   PublishTrafficData:
-    handler: /opt/python/lumigo_tracer._handler
-#    handler: handler.handle
     module: src/PublishTrafficData
     layers:
       - arn:aws:lambda:eu-west-1:114300393969:layer:lumigo-python-tracer:115
@@ -147,8 +141,6 @@ functions:
             - suffix: .json
 
   StreamProcessor:
-    handler: /opt/python/lumigo_tracer._handler
-#    handler: handler.handle
     module: src/StreamProcessor
     timeout: 300
     environment:
@@ -164,8 +156,6 @@ functions:
         Resource: !GetAtt DeliveryStream.Arn
 
   StoreAnalyticsResultsPerPoint:
-    handler: /opt/python/lumigo_tracer._handler
-#    handler: handler.handle
     module: src/StoreAnalyticsResultsPerPoint
     timeout: 10
     reservedConcurrency: 1
@@ -209,8 +199,6 @@ functions:
               arn: !GetAtt SaveAnalyticsDeadQueue.Arn
               type: sqs
   AlertSaver:
-    handler: /opt/python/lumigo_tracer._handler
-#    handler: handler.handle
     module: src/AlertSaver
     timeout: 10
     reservedConcurrency: 1
@@ -245,8 +233,6 @@ functions:
             Fn::GetAtt: [RealTimeAnalyticsPerPointTable, StreamArn]
           maximumRetryAttempts: 2
   AlertSender:
-    handler: /opt/python/lumigo_tracer._handler
-#    handler: handler.handle
     module: src/AlertSender
     timeout: 10
     reservedConcurrency: 1
@@ -263,8 +249,6 @@ functions:
             Fn::GetAtt: [TrafficJamAlertsTable, StreamArn]
           maximumRetryAttempts: 2
   CurrentSituation:
-    handler: /opt/python/lumigo_tracer._handler
-#    handler: handler.handle
     module: src/CurrentSituation
     timeout: 10
     reservedConcurrency: 1
@@ -288,8 +272,6 @@ functions:
           method: GET
           path: /traffic
   CurrentAlerts:
-    handler: /opt/python/lumigo_tracer._handler
-#    handler: handler.handle
     module: src/CurrentAlerts
     timeout: 10
     reservedConcurrency: 1
