@@ -14,6 +14,20 @@ CREATE OR REPLACE PUMP "INCOMING_STREAM_PUMP" AS
             TO_TIMESTAMP(CAST("tijd_waarneming" AS BIGINT) * 1000) AS "recordTimestamp"
         FROM "SOURCE_SQL_STREAM_001";
 
+-- tryout timestamps
+-- CREATE OR REPLACE STREAM "TS_STREAM" (
+--     "EVENT_TIME" TIMESTAMP,
+--     "ROW_TIME" TIMESTAMP,
+--     "APPROXIMATE_ARRIVAL_TIME" TIMESTAMP);
+
+-- CREATE OR REPLACE PUMP "INCOMING_STREAM_PUMP" AS
+--     INSERT INTO "TS_STREAM"
+--         SELECT STREAM
+--             "EVENT_TIME",
+--             "SOURCE_SQL_STREAM_001".ROWTIME,
+--             "SOURCE_SQL_STREAM_001".APPROXIMATE_ARRIVAL_TIME
+--         FROM "SOURCE_SQL_STREAM_001";
+
 
 -- find out if traffic is standing still
 CREATE OR REPLACE STREAM "TRAFFIC_JAM_SQL_STREAM" (
@@ -29,8 +43,8 @@ CREATE OR REPLACE PUMP "TRAFFIC_JAM_SQL_PUMP" AS
             "uniqueId",
             "speed",
             CASE
-                WHEN "speed" BETWEEN 0 AND 40 THEN 1
-                WHEN "speed" BETWEEN 41 AND 250 THEN 0
+                WHEN ("speed" BETWEEN 0 AND 40) AND ("bezettingsgraad" <> 0) THEN 1
+                WHEN ("speed" BETWEEN 41 AND 250) OR ("bezettingsgraad" = 0) THEN 0
                 ELSE -1
             END AS "trafficJamIndicator",
             UNIX_TIMESTAMP("recordTimestamp") AS "recordTimestamp",
@@ -59,10 +73,24 @@ CREATE OR REPLACE PUMP "STREAM_PUMP_SPEED" AS
             AVG("speed") over W10,
             MAX("recordTimestamp") over W0 AS "originalRecordTimestamp"
         FROM "INCOMING_STREAM"
-        WINDOW
-            W0 AS (PARTITION BY FLOOR("INCOMING_STREAM"."recordTimestamp" to MINUTE), "uniqueId" ROWS 0 PRECEDING),
-            W2 AS (PARTITION BY FLOOR("INCOMING_STREAM"."recordTimestamp" to HOUR), "uniqueId" ROWS 2 PRECEDING),
-            W10 AS (PARTITION BY FLOOR("INCOMING_STREAM"."recordTimestamp" to HOUR), "uniqueId" ROWS 10 PRECEDING);
+            WINDOW
+                W0 AS ( PARTITION BY "uniqueId"
+                    RANGE INTERVAL '0' MINUTE PRECEDING),
+                W2 AS ( PARTITION BY "uniqueId"
+                    RANGE INTERVAL '2' MINUTE PRECEDING),
+                W10 AS ( PARTITION BY "uniqueId"
+                    RANGE INTERVAL '10' MINUTE PRECEDING);
+
+            --   WINDOW W1 AS (
+            --   PARTITION BY ticker_symbol
+            --   RANGE INTERVAL '10' SECOND PRECEDING);
+
+            --     WINDOWED BY STAGGER (
+            -- PARTITION BY FLOOR(EVENT_TIME TO MINUTE), TICKER_SYMBOL RANGE INTERVAL '1' MINUTE);
+        -- WINDOW
+        --     W0 AS (PARTITION BY FLOOR("INCOMING_STREAM"."recordTimestamp" to MINUTE), "uniqueId" ROWS 0 PRECEDING),
+        --     W2 AS (PARTITION BY FLOOR("INCOMING_STREAM"."recordTimestamp" to HOUR), "uniqueId" ROWS 2 PRECEDING),
+        --     W10 AS (PARTITION BY FLOOR("INCOMING_STREAM"."recordTimestamp" to HOUR), "uniqueId" ROWS 10 PRECEDING);
 
         -- below is working
         -- WINDOWED BY STAGGER (
@@ -245,12 +273,13 @@ CREATE OR REPLACE STREAM "OUTPUT_STREAM_2" (
     "trafficJamIndicator" INTEGER,
     "bezettingsgraad" INTEGER,
     "recordTimestamp" BIGINT,
+    "location" VARCHAR(128),
     "originalRecordTimestamp" TIMESTAMP);
 
 
 -- Publish speed data to output stream
 CREATE OR REPLACE PUMP "OUTPUT_STREAM_2_SPEED_DIFF_PUMP" AS
-    INSERT INTO "OUTPUT_STREAM_2" ("outputType", "uniqueId", "previousSpeed", "currentSpeed", "speedDiffIndicator", "bezettingsgraad", "recordTimestamp", "originalRecordTimestamp")
+    INSERT INTO "OUTPUT_STREAM_2" ("outputType", "uniqueId", "previousSpeed", "currentSpeed", "speedDiffIndicator", "bezettingsgraad", "recordTimestamp", "location", "originalRecordTimestamp")
         SELECT STREAM
         'SPEED_DIFFERENTIAL',
         "sdi"."uniqueId",
@@ -259,26 +288,30 @@ CREATE OR REPLACE PUMP "OUTPUT_STREAM_2_SPEED_DIFF_PUMP" AS
         "sdi"."speedDiffIndicator",
         "sdi"."bezettingsgraad",
         "sdi"."recordTimestamp",
+        "ml"."locatie",
         "sdi"."originalRecordTimestamp"
-        FROM "SPEED_DIFF_INDICATOR_SQL_STREAM" AS "sdi";
+        FROM "SPEED_DIFF_INDICATOR_SQL_STREAM" AS "sdi" LEFT JOIN "measurementLocations" as "ml"
+        ON "sdi"."uniqueId" = "ml"."id";
 
 
 -- Publish traffic jam data to output stream
 CREATE OR REPLACE PUMP "OUTPUT_STREAM_2_TRAFFIC_JAM_PUMP" AS
-    INSERT INTO "OUTPUT_STREAM_2" ("outputType", "uniqueId", "currentSpeed", "trafficJamIndicator", "recordTimestamp", "originalRecordTimestamp")
+    INSERT INTO "OUTPUT_STREAM_2" ("outputType", "uniqueId", "currentSpeed", "trafficJamIndicator", "recordTimestamp", "location", "originalRecordTimestamp")
         SELECT STREAM
         'TRAFFIC_JAM',
         "tjs"."uniqueId",
         "tjs"."speed",
         "tjs"."trafficJamIndicator",
         "tjs"."recordTimestamp",
+        "ml"."locatie",
         "tjs"."originalRecordTimestamp"
-        FROM "TRAFFIC_JAM_SQL_STREAM" AS "tjs";
+        FROM "TRAFFIC_JAM_SQL_STREAM" AS "tjs" LEFT JOIN "measurementLocations" as "ml"
+        ON "tjs"."uniqueId" = "ml"."id";
 
 
 -- Publish avg speeds data to output stream
 CREATE OR REPLACE PUMP "OUTPUT_STREAM_2_SPEED_AVG_PUMP" AS
-    INSERT INTO "OUTPUT_STREAM" ("outputType", "uniqueId", "currentSpeed", "avgSpeed2Minutes", "avgSpeed10Minutes", "recordTimestamp", "originalRecordTimestamp")
+    INSERT INTO "OUTPUT_STREAM_2" ("outputType", "uniqueId", "currentSpeed", "avgSpeed2Minutes", "avgSpeed10Minutes", "recordTimestamp", "location", "originalRecordTimestamp")
         SELECT STREAM
         'SPEED_AVG',
         "saa"."uniqueId",
@@ -286,5 +319,7 @@ CREATE OR REPLACE PUMP "OUTPUT_STREAM_2_SPEED_AVG_PUMP" AS
         "saa"."avgSpeed2Minutes",
         "saa"."avgSpeed10Minutes",
         "saa"."recordTimestamp",
+        "ml"."locatie",
         "saa"."originalRecordTimestamp"
-        FROM "SPEED_AGG_AVG_STREAM" AS "saa";
+        FROM "SPEED_AGG_AVG_STREAM" AS "saa" LEFT JOIN "measurementLocations" as "ml"
+        ON "saa"."uniqueId" = "ml"."id";
