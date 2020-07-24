@@ -308,6 +308,7 @@ resources:
   - ${file(resources/sqs.yml)}
   - ${file(resources/s3.yml)}
   - ${file(resources/dynamodb.yml)}
+  - ${file(resources/analytics.yml)}
 
   - Outputs:
       DeliveryStreamName:
