@@ -42,14 +42,12 @@ provider:
         - "logs:PutLogEvents"
       Resource: '*'
   environment:
-#    thundra_apiKey: ${ssm:/thundra/apiKey}
     LUMIGO_TRACER_TOKEN: ${ssm:/lumigo/token}
     LUMIGO_ORIGINAL_HANDLER: handler.handle
 
 functions:
   RetrieveXMLTrafficData:
     handler: /opt/python/lumigo_tracer._handler
-#    handler: handler.handle
     module: src/RetrieveXMLTrafficData
     timeout: 60
     layers:
@@ -77,7 +75,6 @@ functions:
 
   TransformTrafficToJsonData:
     handler: /opt/python/lumigo_tracer._handler
-#    handler: handler.handle
     module: src/TransformTrafficDataToJson
     layers:
       - arn:aws:lambda:eu-west-1:114300393969:layer:lumigo-python-tracer:115
@@ -110,7 +107,6 @@ functions:
 
   PublishTrafficData:
     handler: /opt/python/lumigo_tracer._handler
-#    handler: handler.handle
     module: src/PublishTrafficData
     layers:
       - arn:aws:lambda:eu-west-1:114300393969:layer:lumigo-python-tracer:115
@@ -148,11 +144,10 @@ functions:
 
   StreamProcessor:
     handler: /opt/python/lumigo_tracer._handler
-#    handler: handler.handle
     module: src/StreamProcessor
     timeout: 300
     environment:
-      FILTER_IDS: '1897, 3159, 3977, 1065, 575, 1449'
+      FILTER_IDS: '1897, 3159, 3977, 1065, 575'
     layers:
       - arn:aws:lambda:eu-west-1:114300393969:layer:lumigo-python-tracer:115
     iamRoleStatementsInherit: true
@@ -163,52 +158,8 @@ functions:
           - "firehose:PutRecordBatch"
         Resource: !GetAtt DeliveryStream.Arn
 
-  TrafficAlertsFunction:
-    handler: /opt/python/lumigo_tracer._handler
-#    handler: handler.handle
-    module: src/TrafficAlertsFunction
-    timeout: 10
-    reservedConcurrency: 0
-    environment:
-      REGION: eu-west-1
-    layers:
-      - arn:aws:lambda:eu-west-1:114300393969:layer:lumigo-python-tracer:115
-    iamRoleStatementsInherit: true
-    iamRoleStatements:
-      - Effect: "Allow"
-        Action:
-          - "kinesis:DescribeStream"
-          - "kinesis:GetShardIterator"
-          - "kinesis:GetRecords"
-        Resource: !GetAtt DestinationStream.Arn
-      - Effect: "Allow"
-        Action:
-          - "kinesis:DescribeStream"
-          - "kinesis:GetShardIterator"
-          - "kinesis:GetRecords"
-        Resource: !GetAtt DestinationStream.Arn
-      - Effect: "Allow"
-        Action:
-          - "sqs:SendMessage"
-          - "sqs:ListQueues"
-        Resource: !GetAtt TrafficAlertsDeadQueue.Arn
-    events:
-      - stream:
-          type: kinesis
-          arn: !GetAtt DestinationStream.Arn
-          batchSize: 10
-          batchWindow: 30
-          maximumRetryAttempts: 2
-          startingPosition: LATEST
-          enabled: true
-          destinations:
-            onFailure:
-              arn: !GetAtt TrafficAlertsDeadQueue.Arn
-              type: sqs
-
   StoreAnalyticsResultsPerPoint:
     handler: /opt/python/lumigo_tracer._handler
-#    handler: handler.handle
     module: src/StoreAnalyticsResultsPerPoint
     timeout: 10
     reservedConcurrency: 1
@@ -242,8 +193,8 @@ functions:
       - stream:
           type: kinesis
           arn: !GetAtt DestinationStream.Arn
-          batchSize: 10
-          batchWindow: 30
+          batchWindow: 10
+          batchSize: 20
           maximumRetryAttempts: 2
           startingPosition: LATEST
           enabled: true
@@ -253,7 +204,6 @@ functions:
               type: sqs
   AlertSaver:
     handler: /opt/python/lumigo_tracer._handler
-#    handler: handler.handle
     module: src/AlertSaver
     timeout: 10
     reservedConcurrency: 1
@@ -289,7 +239,6 @@ functions:
           maximumRetryAttempts: 2
   AlertSender:
     handler: /opt/python/lumigo_tracer._handler
-#    handler: handler.handle
     module: src/AlertSender
     timeout: 10
     reservedConcurrency: 1
@@ -307,7 +256,6 @@ functions:
           maximumRetryAttempts: 2
   CurrentSituation:
     handler: /opt/python/lumigo_tracer._handler
-#    handler: handler.handle
     module: src/CurrentSituation
     timeout: 10
     reservedConcurrency: 1
@@ -332,7 +280,6 @@ functions:
           path: /traffic
   CurrentAlerts:
     handler: /opt/python/lumigo_tracer._handler
-#    handler: handler.handle
     module: src/CurrentAlerts
     timeout: 10
     reservedConcurrency: 1
@@ -355,7 +302,6 @@ functions:
       - httpApi:
           method: GET
           path: /alerts
-
 resources:
   - ${file(resources/firehose.yml)}
   - ${file(resources/kinesis.yml)}
@@ -379,3 +325,7 @@ resources:
       ResourcesBucketName:
         Description: "Bucket where config files are placed"
         Value: !Ref ResourcesBucket
+      TrafficEventsDeliveryBucket:
+        Value: !Ref DeliveryBucket
+        Export:
+          Name: ${self:service}-${opt:stage, self:provider.stage, 'dev'}-TrafficEventsDeliveryBucketName
