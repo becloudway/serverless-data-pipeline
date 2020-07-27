@@ -142,6 +142,53 @@ Resources:
         - PolicyName: root
           PolicyDocument:
             Statement:
-              - Effect: Allow
-                Action: "*"
-                Resource: "*"
+              - Sid: ReadInputFirehose
+                Effect: Allow
+                Action:
+                  - firehose:DescribeDeliveryStream
+                  - firehose:Get*
+                Resource:
+                  - !GetAtt DeliveryStream.Arn
+              - Sid: WriteOutputKinesis
+                Effect: Allow
+                Action:
+                  - kinesis:DescribeStream
+                  - kinesis:PutRecord
+                  - kinesis:PutRecords
+                Resource:
+                  - !GetAtt DestinationStream.Arn
+              - Sid: WriteOutputFirehose
+                Effect: Allow
+                Action:
+                  - firehose:DescribeDeliveryStream
+                  - firehose:PutRecord
+                  - firehose:PutRecordBatch
+                Resource:
+                  - !GetAtt AnalyticsResultStream.Arn
+              - Sid: ReadS3ReferenceData
+                Effect: Allow
+                Action:
+                  - s3:GetObject
+                Resource:
+                  - Fn::Join:
+                    - ""
+                    - - !GetAtt ResourcesBucket.Arn
+                      - "/meetpunten.csv"
+              - Sid: ReadS3ReferenceData2
+                Effect: Allow
+                Action:
+                  - s3:Get*
+                  - s3:List*
+                Resource:
+                  - !GetAtt ResourcesBucket.Arn
+                  - Fn::Join:
+                      - ""
+                      - - !GetAtt ResourcesBucket.Arn
+                        - "/*"
+              - Sid: UseLambdaFunction
+                Effect: Allow
+                Action:
+                  - lambda:InvokeFunction
+                  - lambda:GetFunctionConfiguration
+                Resource:
+                  - arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:${self:service}-${self:custom.stage}-StreamProcessor
