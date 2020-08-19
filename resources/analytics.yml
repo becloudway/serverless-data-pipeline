@@ -1,0 +1,194 @@
+Resources:
+  AnalyticsApplication:
+    Type: AWS::KinesisAnalytics::Application
+    Properties:
+      ApplicationCode: ${file(kinesis-analytics/sql/analytics.sql)}
+      Inputs:
+        - NamePrefix: SOURCE_SQL_STREAM
+          InputSchema:
+            RecordColumns:
+              - Name: beschrijvende_id
+                SqlType: VARCHAR(8)
+                Mapping: $.beschrijvende_id
+              - Name: unieke_id
+                SqlType: INTEGER
+                Mapping: $.unieke_id
+              - Name: lve_nr
+                SqlType: INTEGER
+                Mapping: $.lve_nr
+              - Name: tijd_waarneming
+                SqlType: INTEGER
+                Mapping: $.tijd_waarneming
+              - Name: tijd_laatst_gewijzigd
+                SqlType: VARCHAR(32)
+                Mapping: $.tijd_laatst_gewijzigd
+              - Name: actueel_publicatie
+                SqlType: INTEGER
+                Mapping: $.actueel_publicatie
+              - Name: beschikbaar
+                SqlType: INTEGER
+                Mapping: $.beschikbaar
+              - Name: defect
+                SqlType: INTEGER
+                Mapping: $.defect
+              - Name: geldig
+                SqlType: INTEGER
+                Mapping: $.geldig
+              - Name: verkeersintensiteit_klasse2
+                SqlType: INTEGER
+                Mapping: $.verkeersintensiteit_klasse2
+              - Name: voertuigsnelheid_rekenkundig_klasse2
+                SqlType: INTEGER
+                Mapping: $.voertuigsnelheid_rekenkundig_klasse2
+              - Name: voertuigsnelheid_harmonisch_klasse2
+                SqlType: INTEGER
+                Mapping: $.voertuigsnelheid_harmonisch_klasse2
+              - Name: verkeersintensiteit_klasse5
+                SqlType: INTEGER
+                Mapping: $.verkeersintensiteit_klasse5
+              - Name: voertuigsnelheid_rekenkundig_klasse5
+                SqlType: INTEGER
+                Mapping: $.voertuigsnelheid_rekenkundig_klasse5
+              - Name: voertuigsnelheid_harmonisch_klasse5
+                SqlType: INTEGER
+                Mapping: $.voertuigsnelheid_harmonisch_klasse5
+              - Name: rekendata_bezettingsgraad
+                SqlType: INTEGER
+                Mapping: $.rekendata_bezettingsgraad
+              - Name: rekendata_beschikbaarheidsgraad
+                SqlType: INTEGER
+                Mapping: $.rekendata_beschikbaarheidsgraad
+              - Name: rekendata_onrustigheid
+                SqlType: INTEGER
+                Mapping: $.rekendata_onrustigheid
+            RecordFormat:
+              RecordFormatType: JSON
+            RecordEncoding: UTF-8
+          InputProcessingConfiguration:
+            InputLambdaProcessor:
+              ResourceARN: arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:${self:service}-${self:custom.stage}-StreamProcessor
+              RoleARN: !GetAtt AnalyticsApplicationRole.Arn
+          KinesisFirehoseInput:
+            ResourceARN: !GetAtt DeliveryStream.Arn
+            RoleARN: !GetAtt AnalyticsApplicationRole.Arn
+
+  DestinationOutput:
+    Type: AWS::KinesisAnalytics::ApplicationOutput
+    Properties:
+      ApplicationName: !Ref AnalyticsApplication
+      Output:
+        Name: OUTPUT_STREAM
+        DestinationSchema:
+          RecordFormatType: JSON
+        KinesisStreamsOutput:
+          ResourceARN: !GetAtt DestinationStream.Arn
+          RoleARN: !GetAtt AnalyticsApplicationRole.Arn
+
+  AnalyticsResultsOutput:
+    Type: AWS::KinesisAnalytics::ApplicationOutput
+    Properties:
+      ApplicationName: !Ref AnalyticsApplication
+      Output:
+        Name: OUTPUT_STREAM_2
+        DestinationSchema:
+          RecordFormatType: JSON
+        KinesisFirehoseOutput:
+          ResourceARN: !GetAtt AnalyticsResultStream.Arn
+          RoleARN: !GetAtt AnalyticsApplicationRole.Arn
+
+  ApplicationReferenceDataSource:
+    Type: AWS::KinesisAnalytics::ApplicationReferenceDataSource
+    Properties:
+      ApplicationName: !Ref AnalyticsApplication
+      ReferenceDataSource:
+        TableName: measurementLocations
+        ReferenceSchema:
+          RecordColumns:
+            - Name: locatieId
+              SqlType: VARCHAR(128)
+            - Name: locatie
+              SqlType: VARCHAR(64)
+            - Name: id
+              SqlType: INT
+            - Name: longitude
+              SqlType: DOUBLE
+            - Name: latitude
+              SqlType: DOUBLE
+          RecordFormat:
+            RecordFormatType: CSV
+            MappingParameters:
+              CSVMappingParameters:
+                RecordRowDelimiter: "\n"
+                RecordColumnDelimiter: "\t"
+          RecordEncoding: UTF-8
+        S3ReferenceDataSource:
+          BucketARN: !GetAtt ResourcesBucket.Arn
+          FileKey: meetpunten.csv
+          ReferenceRoleARN: !GetAtt AnalyticsApplicationRole.Arn
+
+  AnalyticsApplicationRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - kinesisanalytics.amazonaws.com
+            Action:
+              - "sts:AssumeRole"
+      Path: "/"
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Statement:
+              - Sid: ReadInputFirehose
+                Effect: Allow
+                Action:
+                  - firehose:DescribeDeliveryStream
+                  - firehose:Get*
+                Resource:
+                  - !GetAtt DeliveryStream.Arn
+              - Sid: WriteOutputKinesis
+                Effect: Allow
+                Action:
+                  - kinesis:DescribeStream
+                  - kinesis:PutRecord
+                  - kinesis:PutRecords
+                Resource:
+                  - !GetAtt DestinationStream.Arn
+              - Sid: WriteOutputFirehose
+                Effect: Allow
+                Action:
+                  - firehose:DescribeDeliveryStream
+                  - firehose:PutRecord
+                  - firehose:PutRecordBatch
+                Resource:
+                  - !GetAtt AnalyticsResultStream.Arn
+              - Sid: ReadS3ReferenceData
+                Effect: Allow
+                Action:
+                  - s3:GetObject
+                Resource:
+                  - Fn::Join:
+                    - ""
+                    - - !GetAtt ResourcesBucket.Arn
+                      - "/meetpunten.csv"
+              - Sid: ReadS3ReferenceData2
+                Effect: Allow
+                Action:
+                  - s3:Get*
+                  - s3:List*
+                Resource:
+                  - !GetAtt ResourcesBucket.Arn
+                  - Fn::Join:
+                      - ""
+                      - - !GetAtt ResourcesBucket.Arn
+                        - "/*"
+              - Sid: UseLambdaFunction
+                Effect: Allow
+                Action:
+                  - lambda:InvokeFunction
+                  - lambda:GetFunctionConfiguration
+                Resource:
+                  - arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:${self:service}-${self:custom.stage}-StreamProcessor

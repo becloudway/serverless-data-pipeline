@@ -22,7 +22,7 @@ provider:
   stage: dev
   runtime: python3.7
   region: eu-west-1
-  profile: cloudway-nick
+  profile: default
   httpApi:
     cors:
       allowedOrigins:
@@ -308,6 +308,7 @@ resources:
   - ${file(resources/sqs.yml)}
   - ${file(resources/s3.yml)}
   - ${file(resources/dynamodb.yml)}
+  - ${file(resources/analytics.yml)}
 
   - Outputs:
       DeliveryStreamName:
