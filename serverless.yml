@@ -20,7 +20,7 @@ custom:
 provider:
   name: aws
   stage: dev
-  runtime: python3.7
+  runtime: python3.8
   region: eu-west-1
   profile: default
   httpApi:
@@ -202,6 +202,43 @@ functions:
             onFailure:
               arn: !GetAtt SaveAnalyticsDeadQueue.Arn
               type: sqs
+  PowerBiForwarderr:
+#    handler: /opt/python/lumigo_tracer._handler
+    handler: handler.handle
+    module: src/PowerBiForwarder
+    timeout: 10
+    reservedConcurrency: 1
+#    layers:
+#      - arn:aws:lambda:eu-west-1:114300393969:layer:lumigo-python-tracer:115
+    environment:
+      STEAMING_DATASET_URL: https://api.powerbi.com/beta/49c3d703-3579-47bf-a888-7c913fbdced9/datasets/a52e28e9-93f2-4c07-934f-52818e43536d/rows?noSignUpCheck=1&key=aYKSacZqpKWp7w1kUNI6KQJNejVi95yZkv%2FHJQDtLuZFrI3%2FhQkjYdoHsT9%2BoYSShdMZWQevrf5i77sdQHgYUA%3D%3D
+    iamRoleStatementsInherit: true
+    iamRoleStatements:
+      - Effect: "Allow"
+        Action:
+          - "kinesis:DescribeStream"
+          - "kinesis:GetShardIterator"
+          - "kinesis:GetRecords"
+        Resource: !GetAtt DestinationStream.Arn
+      - Effect: "Allow"
+        Action:
+          - "sqs:SendMessage"
+          - "sqs:ListQueues"
+        Resource: !GetAtt PowerBiForwarderDeadQueue.Arn
+    events:
+      - stream:
+          type: kinesis
+          arn: !GetAtt DestinationStream.Arn
+          batchWindow: 10
+          batchSize: 20
+          maximumRetryAttempts: 2
+          startingPosition: LATEST
+          enabled: true
+          destinations:
+            onFailure:
+              arn: !GetAtt PowerBiForwarderDeadQueue.Arn
+              type: sqs
+
   AlertSaver:
     handler: /opt/python/lumigo_tracer._handler
     module: src/AlertSaver
