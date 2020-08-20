@@ -284,6 +284,7 @@ functions:
     environment:
       SLACK_WEBHOOK: ${ssm:/slack/traffic/webhook}
       SLACK_CHANNEL: traffic-alerts
+      FLASK_API: http://flask-env.eba-jp3gn4xp.eu-west-1.elasticbeanstalk.com/send-notification
     iamRoleStatementsInherit: true
     events:
       - stream:

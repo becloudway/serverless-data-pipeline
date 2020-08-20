@@ -8,6 +8,7 @@ from urllib.error import URLError, HTTPError
 
 SLACK_CHANNEL = os.environ['SLACK_CHANNEL']
 SLACK_WEBHOOK = os.environ['SLACK_WEBHOOK']
+FLASK_API = os.environ['FLASK_API']
 
 
 logger = logging.getLogger()
@@ -38,11 +39,24 @@ def send_message(message):
         'channel': SLACK_CHANNEL,
         'text': message
     }
+    api_message = {
+        'message': message
+    }
     req = Request(SLACK_WEBHOOK, json.dumps(slack_message).encode('utf-8'))
+    req_api = Request(FLASK_API, json.dumps(api_message).encode('utf-8'))
     try:
         response = urlopen(req)
         response.read()
         logger.info("Message posted to %s", slack_message['channel'])
+    except HTTPError as e:
+        logger.error("Request failed: %d %s", e.code, e.reason)
+    except URLError as e:
+        logger.error("Server connection failed: %s", e.reason)
+
+    try:
+        response = urlopen(req_api)
+        response.read()
+        logger.info("Message posted to flask api (for frontend integration)")
     except HTTPError as e:
         logger.error("Request failed: %d %s", e.code, e.reason)
     except URLError as e:
