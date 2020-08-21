@@ -25,13 +25,17 @@ def handle(event, context):
 
         if alert_indicator == "1":
             message = f"*NEW* *traffic jam* at location: *{location}* :sob:"
+            api_message = f"New traffic jam at location: {location}"
             send_message(message)
+            send_api_message(api_message)
         elif alert_indicator == "0":
             if not record["dynamodb"].get("OldImage"):
                 continue
             else:
                 message = f"The *traffic jam* at location: *{location}* is *GONE*! :smile:"
+                api_message = f"The traffic jam at location: {location} is gone!"
                 send_message(message)
+                send_api_message(api_message)
 
 
 def send_message(message):
@@ -39,11 +43,9 @@ def send_message(message):
         'channel': SLACK_CHANNEL,
         'text': message
     }
-    api_message = {
-        'message': message
-    }
+
     req = Request(SLACK_WEBHOOK, json.dumps(slack_message).encode('utf-8'))
-    req_api = Request(FLASK_API, json.dumps(api_message).encode('utf-8'))
+
     try:
         response = urlopen(req)
         response.read()
@@ -52,6 +54,13 @@ def send_message(message):
         logger.error("Request failed: %d %s", e.code, e.reason)
     except URLError as e:
         logger.error("Server connection failed: %s", e.reason)
+
+
+def send_api_message(message):
+    api_notification = {
+        'message': message
+    }
+    req_api = Request(FLASK_API, json.dumps(api_notification).encode('utf-8'))
 
     try:
         response = urlopen(req_api)
