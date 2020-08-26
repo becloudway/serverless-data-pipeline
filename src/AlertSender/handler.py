@@ -27,7 +27,7 @@ def handle(event, context):
             message = f"*NEW* *traffic jam* at location: *{location}* :sob:"
             api_message = f"New traffic jam at location: {location}"
             send_message(message)
-            send_api_message(api_message)
+            send_api_message(api_message, True)
         elif alert_indicator == "0":
             if not record["dynamodb"].get("OldImage"):
                 continue
@@ -35,7 +35,7 @@ def handle(event, context):
                 message = f"The *traffic jam* at location: *{location}* is *GONE*! :smile:"
                 api_message = f"The traffic jam at location: {location} is gone!"
                 send_message(message)
-                send_api_message(api_message)
+                send_api_message(api_message, False)
 
 
 def send_message(message):
@@ -56,9 +56,10 @@ def send_message(message):
         logger.error("Server connection failed: %s", e.reason)
 
 
-def send_api_message(message):
+def send_api_message(message, incoming):
     api_notification = {
-        'message': message
+        'message': message,
+        'incoming': incoming
     }
     req_api = Request(FLASK_API, json.dumps(api_notification).encode('utf-8'))
 
