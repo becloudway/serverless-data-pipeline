@@ -57,7 +57,7 @@ def create_speed_avg_item(data_item):
         'outputType': data_item.get('outputType'),
         'outputType_recordTimestamp': combo_key,
         'currentSpeed': data_item.get('currentSpeed'),
-        'avgSpeed2Minutes': data_item.get('avgSpeed2Minutes'),
+        'avgSpeed3Minutes': data_item.get('avgSpeed3Minutes'),
         'avgSpeed10Minutes': data_item.get('avgSpeed10Minutes'),
         'loc': data_item.get('location'),
     }
