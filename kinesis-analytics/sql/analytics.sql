@@ -29,29 +29,6 @@ CREATE OR REPLACE PUMP "INCOMING_STREAM_PUMP" AS
 --         FROM "SOURCE_SQL_STREAM_001";
 
 
--- find out if traffic is standing still
-CREATE OR REPLACE STREAM "TRAFFIC_JAM_SQL_STREAM" (
-    "uniqueId" INTEGER,
-    "speed" INTEGER,
-    "trafficJamIndicator" INTEGER,
-    "recordTimestamp" BIGINT,
-    "originalRecordTimestamp" TIMESTAMP);
-
-CREATE OR REPLACE PUMP "TRAFFIC_JAM_SQL_PUMP" AS
-    INSERT INTO "TRAFFIC_JAM_SQL_STREAM"
-        SELECT STREAM
-            "s"."uniqueId" AS "uniqueId",
-            "s"."speed" as "speed",
-            CASE
-                WHEN ("s"."avgSpeed3Minutes" BETWEEN 0 AND 40) AND ("s"."bezettingsgraad" <> 0) THEN 1
-                WHEN ("s"."avgSpeed3Minutes" BETWEEN 41 AND 250) OR ("s"."bezettingsgraad" = 0) THEN 0
-                ELSE -1
-            END AS "trafficJamIndicator",
-            "s"."recordTimestamp" AS "recordTimestamp",
-            "s"."originalRecordTimestamp" as "originalRecordTimestamp"
-        FROM "SPEED_SQL_STREAM" as "s";
-
-
 -- Aggregate the speed over a 3/10 minute window for each unique Id (location)
 CREATE OR REPLACE STREAM "SPEED_SQL_STREAM" (
     "uniqueId" INTEGER,
@@ -104,6 +81,29 @@ CREATE OR REPLACE PUMP "STREAM_PUMP_SPEED" AS
         --      STEP("INCOMING_STREAM"."recordTimestamp" BY INTERVAL '2' MINUTE);
 
 
+-- find out if traffic is standing still
+CREATE OR REPLACE STREAM "TRAFFIC_JAM_SQL_STREAM" (
+    "uniqueId" INTEGER,
+    "speed" INTEGER,
+    "trafficJamIndicator" INTEGER,
+    "recordTimestamp" BIGINT,
+    "originalRecordTimestamp" TIMESTAMP);
+
+CREATE OR REPLACE PUMP "TRAFFIC_JAM_SQL_PUMP" AS
+    INSERT INTO "TRAFFIC_JAM_SQL_STREAM"
+        SELECT STREAM
+            "s"."uniqueId" AS "uniqueId",
+            "s"."speed" as "speed",
+            CASE
+                WHEN ("s"."avgSpeed3Minutes" BETWEEN 0 AND 40) AND ("s"."bezettingsgraad" <> 0) THEN 1
+                WHEN ("s"."avgSpeed3Minutes" BETWEEN 41 AND 250) OR ("s"."bezettingsgraad" = 0) THEN 0
+                ELSE -1
+            END AS "trafficJamIndicator",
+            "s"."recordTimestamp" AS "recordTimestamp",
+            "s"."originalRecordTimestamp" as "originalRecordTimestamp"
+        FROM "SPEED_SQL_STREAM" as "s";
+
+
 -- Stream all the latest speed averages
 CREATE OR REPLACE STREAM "SPEED_AGG_AVG_STREAM" (
     "uniqueId" INTEGER,
@@ -122,6 +122,7 @@ CREATE OR REPLACE PUMP "SPEED_AGG_AVG_PUMP" AS
             "s"."recordTimestamp",
             "s"."originalRecordTimestamp"
         FROM "SPEED_SQL_STREAM" AS "s";
+
 
 -- Calculate the difference in speed between the current window and the previous one
 -- Get previous speed
