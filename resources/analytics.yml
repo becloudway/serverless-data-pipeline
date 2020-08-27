@@ -3,6 +3,7 @@ Resources:
     Type: AWS::KinesisAnalytics::Application
     Properties:
       ApplicationCode: ${file(kinesis-analytics/sql/analytics.sql)}
+      ApplicationName: sls-data-pipelines-traffic-analytics
       Inputs:
         - NamePrefix: SOURCE_SQL_STREAM
           InputSchema:
